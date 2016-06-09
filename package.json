@@ -1,0 +1,31 @@
+{
+  "name": "parambox",
+  "version": "0.0.1",
+  "description": "Too much parameters to handle ? paraBox is a collection of smart plug and play tools to facilitate the design of javascript games and cognitive tasks.",
+  "main": "LICENSE-MIT",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/albertbuchard/paramBox.git"
+  },
+  "keywords": [
+    "toolbox",
+    "javascript",
+    "design",
+    "toys",
+    "game",
+    "task",
+    "parameters"
+  ],
+  "author": "Albert Buchard",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/albertbuchard/paramBox/issues"
+  },
+  "homepage": "https://github.com/albertbuchard/paramBox#readme",
+  "dependencies": {
+    "jquery": "^3.0.0"
+  }
+}
