@@ -9,8 +9,11 @@ paramBox is a collection of smart plug and play tools to facilitate the design o
 ### DragBox
 
 Small dragable boxes. 
+
 Three stickiness properties : magnetized, glue, or none.
-Appear and disapear on command : Shift + P for now.
+
+The boxes are keybinded and appear and disapear on command : Shift + P for now.
+
 
 ### ParamBox
 
