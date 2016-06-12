@@ -6,8 +6,10 @@ paramBox is a collection of smart plug and play tools to facilitate the design o
 
 ## Require
 
-For now : ECMA 2016 friendly browsers and jQuery
+For now : jQuery
 
+## Install
+	<script type="text/javascript" src="/lib/paramBox-transpiled-0.1.js"></script>
 
 ## Classes
 
