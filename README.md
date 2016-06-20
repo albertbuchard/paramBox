@@ -31,7 +31,7 @@ For now : jQuery, Bootstrap
 	</script>
 
 
-A div containing the ParamBox is automatically added to the document's body, to show/hide it, press Shift + P.
+A div containing the ParamBox is automatically added to the document's body, to show/hide it, press Shift + P. You ight want to change the url of your imports.
 
 
 ## Classes

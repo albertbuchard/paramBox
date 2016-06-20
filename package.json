@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/albertbuchard/paramBox#readme",
   "dependencies": {
+    "bootstrap": "^3.3.6",
     "jquery": "^3.0.0"
   }
 }
