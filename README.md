@@ -22,7 +22,7 @@ For now : jQuery, Bootstrap
 				// instanciate the param box
 				paramBox = new ParamBox();
 
-				// bind object vairables to it
+				// bind object variables to it
 				paramBox.bind(taskObject, ["nameOfVariableOne", "nameOfVariableTwo"]);
 
 				// we suppose in this example that taskObject.nameOfVariableOne, and taskObject.nameOfVariableTwo exists !
@@ -31,7 +31,7 @@ For now : jQuery, Bootstrap
 	</script>
 
 
-A div is automatically added to your <body>, to show/hide it, press Shift + P.
+A div containing the ParamBox is automatically added to the document's body, to show/hide it, press Shift + P.
 
 
 ## Classes
