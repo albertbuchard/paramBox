@@ -5,11 +5,22 @@ Too much parameters to handle ?
 paramBox is a collection of smart plug and play tools to facilitate the design of javascript games and cognitive tasks.
 
 
+## Description 
+A ParamBox is a little draggable div allowing you to do double binding with any variable of your page. It is often long to go back and forth between your code and the page when you want to change the value of just one variable. This box allows you to to have all your variables in check for quick access.
+
+Two other classes are currently avaible : DragBox (simple draggable box), and SmartModal (a configurable modal).
+
+http://imgur.com/4OcMkNR
+
 ## Require
 
 For now : jQuery, Bootstrap
 
 ## Install
+
+
+To install a paramBox :
+
 	<link rel="stylesheet" type="text/css" href="/node_modules/bootstrap/dist/css/bootstrap.min.css"></link>
 	<script type="text/javascript" src="/lib/paramBox-transpiled-0.1.js"></script>
 	<script type="text/javascript">
