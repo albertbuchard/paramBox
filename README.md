@@ -60,13 +60,13 @@ To create a box :
 You will see that by default the box is sticky on the edge of the screen, this property can be changed to: magnetized, glue, or none.
 	
 	// edge are magnetic and attract the box
-	cawaka.stickiness = "magnetized";
+	dragBox.stickiness = "magnetized";
 	
 	// the box is not attracted by the edge but sticks to it if you make it collide with it.
-	cawaka.stickiness = "glue";
+	dragBox.stickiness = "glue";
 
 	// no stickiness
-	cawaka.stickiness = "none";
+	dragBox.stickiness = "none";
 
 
 ### ParamBox
@@ -98,3 +98,10 @@ To create a modal :
 	var modalBox = new SmartModal("centralSmall", function() { console.log("Modal Destroyed"); })
 	modalBox.title = "<h4><center>This is a modal</center></h4>"
 	modalBox.content = "Very important information, needed a modal."
+
+
+
+## PS
+
+A lot remains to be done! (i'll work on the docs... it takes time sorry !)
+You are most welcome to land a hand :)
