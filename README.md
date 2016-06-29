@@ -1,8 +1,9 @@
-# paramBox
+# paramBox v1.2
 
 Too much parameters to handle ? 
 
 paramBox is a collection of smart plug and play tools to facilitate the design of javascript games and cognitive tasks.
+
 
 ## Require
 
@@ -38,16 +39,62 @@ A div containing the ParamBox is automatically added to the document's body, to 
 
 ### DragBox
 
-Small dragable boxes. 
+This is the parent class, all properties and method of this object are inherited by ParamBox and SmartModal classes. Dragboxes are small dragable boxes with a title and content. By clicking on the title bar you can drag the box. 
 
-Three stickiness properties : magnetized, glue, or none.
+To create a box :
 
-The boxes are keybinded and appear and disapear on command : Shift + P for now.
+	var dragBox = new DragBox();
+	dragBox.title = "<h3><center> My dragbox </center></h3>";
+	dragBox.content = "<p>Some very usefull information in HTML</p>";
+
+	// then show the dragbox
+	dragBox.show();
+
+	// to hide the dragBox
+	// dragBox.hide();
+
+	// to destroy a box (removes it from the DOM)
+	// dragBox.destroy()
+
+
+You will see that by default the box is sticky on the edge of the screen, this property can be changed to: magnetized, glue, or none.
+	
+	// edge are magnetic and attract the box
+	cawaka.stickiness = "magnetized";
+	
+	// the box is not attracted by the edge but sticks to it if you make it collide with it.
+	cawaka.stickiness = "glue";
+
+	// no stickiness
+	cawaka.stickiness = "none";
 
 
 ### ParamBox
 
-### BindedProperty
+The boxes are keybinded and appear and disapear on command : Shift + P for now. This will show and hide all paramBoxes you have on your page.
 
-### BindedField
 
+* BindedProperty
+* BindedField
+
+### SmartModal
+
+Smart modal is another helping class that creates a modal that adapt intelligently to the page, and are easilly configurable. They are shown automatically and dismiss when the button is clicked.
+
+The modal constructor takes four possible arguments :
+	SmartModal(formatType = "across", callback = null, buttonType = "closebutton")
+
+formatType determine the size and position of the modal, modals appeara at 20% from the top and are of three types: 
+	* "centralSmall" creates a modal with : 30% height 40% width 
+	* "centralLarge" creates a modal with : 60% height 70% width 
+	* "across" creates a modal with : 40% height 100% width (30% from the top)
+
+Callback is a function that is called when the modal is dismissed. 
+
+Buttontype is a string can either be : "closebutton", "nextbutton", or "blankbutton"
+
+To create a modal :
+
+	var modalBox = new SmartModal("centralSmall", function() { console.log("Modal Destroyed"); })
+	modalBox.title = "<h4><center>This is a modal</center></h4>"
+	modalBox.content = "Very important information, needed a modal."

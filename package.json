@@ -1,8 +1,8 @@
 {
   "name": "parambox",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Too much parameters to handle ? paraBox is a collection of smart plug and play tools to facilitate the design of javascript games and cognitive tasks.",
-  "main": "lib/paramBox-transpiled-0.1.js",
+  "main": "lib/paramBox-transpiled-0.2.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/albertbuchard/paramBox.git"

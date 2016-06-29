@@ -1,0 +1,61 @@
+  .dragbox {
+    z-index:10;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+
+    
+    -webkit-border-radius: 3px 3px 3px 3px;
+    -moz-border-radius: 3px 3px 3px 3px;
+    border-radius: 3px 3px 3px 3px;
+    
+    background:rgba(46,43,38,0.9);
+    -webkit-box-shadow: #1F1F1F 1px 1px 1px;
+    -moz-box-shadow: #1F1F1F 1px 1px 1px; 
+    box-shadow: #1F1F1F 1px 1px 1px;
+
+    color: #F8F8F5 !important; 
+
+    overflow-y: hidden;
+
+  }
+
+
+.dragbox 
+div 
+h1 {
+	color: #F8F8F5;;
+
+}
+
+.dragbox div {
+	color: #F8F8F5;
+
+}
+
+.dragbox-title {/*
+	-webkit-border-radius: 3px 3px 3px 3px;
+  	-moz-border-radius: 3px 3px 3px 3px;
+  	border-radius: 3px 3px 3px 3px;
+  	*/
+
+  	background:rgba(55,55,50,1);
+}
+
+.dragbox-content {/*
+  -webkit-border-radius: 3px 3px 3px 3px;
+    -moz-border-radius: 3px 3px 3px 3px;
+    border-radius: 3px 3px 3px 3px;
+    */
+    color: #F8F8F5 !important; 
+    height: 100%;
+    overflow-y: auto;
+}
+
+.dragbox-container {
+  padding: 0 0 0 0 !important;
+}
+
+.dragbox-footer {
+  text-align: right;
+}
