@@ -1,4 +1,4 @@
-# paramBox v1.2
+# paramBox
 
 Too much parameters to handle ? 
 
@@ -18,14 +18,15 @@ For now : jQuery, Bootstrap
 
 ## Install
 
-You can either clone the repo, download the files in the lib folder, or use npm (recommended).
+You can either clone the repo, download the files in the dist folder, or use npm (recommended).
 
 	npm install parambox
 
 Then, to install a paramBox :
 
 	<link rel="stylesheet" type="text/css" href="/node_modules/bootstrap/dist/css/bootstrap.min.css"></link>
-	<script type="text/javascript" src="/lib/paramBox-transpiled-1.2.js"></script>
+	<link rel="stylesheet" type="text/css" href="/dist/paramBox.transpiled.css"></link>
+	<script type="text/javascript" src="/dist/paramBox.transpiled.js"></script>
 	<script type="text/javascript">
 		// one example of implementation could be
     var paramBox = null;
