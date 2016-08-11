@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            ParamBox.js: Example One
+        </title>
+        <script src="jquery.min.js">
+        </script>
+        <script src="bootstrap.min.js">
+        </script>
+        <script src="../dist/paramBox.js" type="text/javascript">
+        </script>
+        <link href="bootstrap.css" rel="stylesheet" type="text/css"/>
+        <link href="../dist/paramBox.css" rel="stylesheet" type="text/css"/>
+        <script type="text/javascript">
+            window.exampleObject = {
+                selectedColor:"red",
+                textForSelected: "is currently selected",
+                selectedHeight: 400,
+                sizeForNonSelected: 100,
+                allColors: ["red", "blue", "yellow", "green"],
+                update: function () {
+                    var listDivs = document.getElementsByClassName("coloredDiv");
+
+                    for (var i = 0; i < listDivs.length; i++) {
+                        listDivs[i].style.height = "50px";
+                        listDivs[i].innerHTML = "<center>Not Selected</center>";
+                    }
+
+                    var selectedDiv = document.getElementsByClassName(this.selectedColor)[0];
+                    selectedDiv.style.height = this.selectedHeight+"px";
+                    selectedDiv.innerHTML = "<center>"+ this.selectedColor + " " +this.textForSelected+"</center>";
+                }
+            };
+
+            /* list of tweakable variables from the paramBox */
+            var parametersNames = ["selectedColor", "textForSelected", "selectedHeight"];
+
+            var parametersConstraints = {
+              selectedColor: ["red",
+                "blue",
+                "yellow",
+                "green"]
+            };
+
+            document.addEventListener("DOMContentLoaded", function(event) {
+
+                /* if ParamBox library is loaded - create one */
+                if (typeof ParamBox === "function") {
+                  var paramBox = new ParamBox();
+                  paramBox.bind(window.exampleObject, parametersNames, parametersConstraints);
+                }
+
+                window.setInterval(function(){
+                   window.exampleObject.update();
+                },100);
+            });
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="coloredDiv red col-xs-12" style="background:red; color:white;">
+            </div>
+            <div class="coloredDiv blue col-xs-12" style="background:blue; color:white;">
+            </div>
+            <div class="coloredDiv yellow col-xs-12" style="background:yellow; color:black;">
+            </div>
+            <div class="coloredDiv green col-xs-12" style="background:green; color:white;">
+            </div>
+        </div>
+    </body>
+</html>

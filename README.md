@@ -25,8 +25,8 @@ You can either clone the repo, download the files in the dist folder, or use npm
 Then, to install a paramBox :
 
 	<link rel="stylesheet" type="text/css" href="/node_modules/bootstrap/dist/css/bootstrap.min.css"></link>
-	<link rel="stylesheet" type="text/css" href="/dist/paramBox.transpiled.css"></link>
-	<script type="text/javascript" src="/dist/paramBox.transpiled.js"></script>
+	<link rel="stylesheet" type="text/css" href="/dist/paramBox.css"></link>
+	<script type="text/javascript" src="/dist/paramBox-compiled.js"></script>
 	<script type="text/javascript">
 		// one example of implementation could be
     var paramBox = null;
