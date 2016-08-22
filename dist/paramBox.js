@@ -589,11 +589,13 @@ class ParamBox extends DragBox {
       throw new Error("object is undefined");
     }
 
+    var objectHierarchy = null;
     if (properties.constructor === Array) {
       for (var i = 0; i < properties.length; i++) {
-        if (typeof object[properties[i]] == 'undefined') {
-          throw new Error("object property " + properties[i] + " is undefined");
-        }
+
+        objectHierarchy = this.getDescendantProp(object, properties[i]);
+        var objectTemp = objectHierarchy[0];
+        var property = objectHierarchy[1];
 
         var rowDom = this.newRowInDom();
         var bindedField = null;
@@ -601,43 +603,43 @@ class ParamBox extends DragBox {
         // look for a constrained field
         if (constraints !== null) {
           if (typeof constraints[properties[i]] != 'undefined') {
-            var bindedField = new BindedField(object, properties[i], rowDom, 'selector', constraints[properties[i]]);
+            var bindedField = new BindedField(objectTemp, property, rowDom, 'selector', constraints[properties[i]]);
           }
-
         }
 
         // if not constrained field found, create the most relevant type of field
         if (!bindedField) {
-          if (object[properties[i]].constructor === Boolean) {
-            var bindedField = new BindedField(object, properties[i], rowDom, 'selector', ["TRUE", "FALSE"]);
+          if (objectTemp[property].constructor === Boolean) {
+            var bindedField = new BindedField(objectTemp, property, rowDom, 'selector', ["TRUE", "FALSE"]);
           } else {
-            var bindedField = new BindedField(object, properties[i], rowDom);
+            var bindedField = new BindedField(objectTemp, property, rowDom);
           }
         }
 
         this.rows.push(this.getBindedRow(rowDom, bindedField));
       }
     } else {
-      if (typeof object[properties] == 'undefined') {
-        throw new Error("object property " + properties + " is undefined");
-      }
+
+      objectHierarchy = this.getDescendantProp(object, properties);
+      var objectTemp = objectHierarchy[0];
+      var property = objectHierarchy[1];
 
       var rowDom = this.newRowInDom();
       var bindedField = null;
 
       // look for a constrained field
       if (constraints !== null) {
-        if (typeof constraints[properties] != 'undefined') {
-          var bindedField = new BindedField(object, properties, rowDom, 'selector', constraints[properties]);
+        if (typeof constraints[properties] !== 'undefined') {
+          var bindedField = new BindedField(objectTemp, property, rowDom, 'selector', constraints[properties]);
         }
       }
 
       // if not constrained field found, create the most relevant type of field
       if (!bindedField) {
-        if (object[property].constructor === Boolean) {
-          var bindedField = new BindedField(object, properties, rowDom, 'selector', ["TRUE", "FALSE"]);
+        if (objectTemp[property].constructor === Boolean) {
+          var bindedField = new BindedField(objectTemp, property, rowDom, 'selector', ["TRUE", "FALSE"]);
         } else {
-          var bindedField = new BindedField(object, properties, rowDom);
+          var bindedField = new BindedField(objectTemp, property, rowDom);
         }
       }
 
@@ -697,6 +699,34 @@ class ParamBox extends DragBox {
       e.preventDefault();
     }
 
+  }
+
+  /**
+   * Gets the last object and property from a string description of object hierachy 
+   * @param  {object} object      Top object from which the hierarchy starts
+   * @param  {string} description String describing the object hierachy (e.g this.object.has.property )
+   * @return {array}             [parentObject, lastProperty, propertyValue]
+   */
+  getDescendantProp(object, description) {
+    var arr = description.split(".");
+    var parentObject = null;
+    var lastProperty = null;
+
+    while (arr.length) {
+      parentObject = object;
+      lastProperty = arr.shift();
+
+      if (typeof object[lastProperty] === "undefined") {
+        throw new Error("object property " + lastProperty + " is undefined");
+      }
+
+      object = object[lastProperty];
+    }
+
+    /* the last object of the while is the value of the specified property */
+    var propertyValue = object;
+
+    return [parentObject, lastProperty, propertyValue];
   }
 
 }
