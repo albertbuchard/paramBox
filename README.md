@@ -23,7 +23,7 @@ You can either clone the repo, download the files in the dist folder, or use npm
 	npm install parambox
 
 Then, to install a paramBox :
-
+```
 	<link rel="stylesheet" type="text/css" href="/node_modules/bootstrap/dist/css/bootstrap.min.css"></link>
 	<link rel="stylesheet" type="text/css" href="/dist/paramBox.css"></link>
 	<script type="text/javascript" src="/dist/paramBox-compiled.js"></script>
@@ -45,7 +45,7 @@ Then, to install a paramBox :
 			
 		});
 	</script>
-
+```
 
 A div containing the ParamBox is automatically added to the document's body, to show/hide it, press Shift + P. You ight want to change the url of your imports.
 
@@ -114,9 +114,10 @@ To create a modal :
 	modalBox.title = "<h4><center>This is a modal</center></h4>"
 	modalBox.content = "Very important information, needed a modal."
 
+## Developped in the Bavelier Lab by
+* Albert Buchard
 
-
-## PS
-
-A lot remains to be done! (i'll work on the docs... it takes time sorry !)
+## Contribute
+A lot remains to be done! 
+I'll work on the docs in the next months, JSDOC might help a lot in that regard !
 You are most welcome to land a hand :)

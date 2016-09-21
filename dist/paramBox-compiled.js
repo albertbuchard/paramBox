@@ -108,6 +108,9 @@ var DragBox = function () {
     $(document).click(function (e) {
       thisObject.stopDrag(e);
     });
+
+    /* --- Load the query string if reload and import was used --- */
+    this.queryString = this.getQueryString();
   }
   // destroy
 
@@ -289,13 +292,26 @@ var DragBox = function () {
 
     // content function
 
+    /**
+     * Add the specified html code to the specified target. 
+     * If wrapInDivClass is set, a div of specified class is created around the html code. This could be usefull to set grid class like 'col-xs-12'.
+     * @param  {string} html           html to append to the target
+     * @param  {String} to             target identifier eg .target-class or #targetID
+     * @param  {String} wrapInDivClass Null by default. If set, creates a div with specified class wrapping the html code.
+     */
+
   }, {
     key: "append",
     value: function append(html) {
       var to = arguments.length <= 1 || arguments[1] === undefined ? ".dragbox-content" : arguments[1];
+      var wrapInDivClass = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
 
       // append html to the selected child element of the dragbox
       if (this.boxElement) {
+        if (wrapInDivClass !== null) {
+          html = '<div class="' + wrapInDivClass + '" >' + html + "</div>";
+        }
+
         if (to != "container") {
           this.boxElement.find(to).append(html);
         } else {
@@ -305,6 +321,42 @@ var DragBox = function () {
     }
 
     /* ======== Setters and getters ======== */
+
+  }, {
+    key: "getQueryString",
+
+
+    /* =============== Helper functions =============== */
+    /**
+     * From http://stackoverflow.com/questions/979975/how-to-get-the-value-from-the-get-parameters?page=1&tab=votes#tab-top
+     * @return {Array} Array containing variables of the location string.
+     */
+    value: function getQueryString() {
+      // This function is anonymous, is executed immediately and
+      // the return value is assigned to QueryString!
+      var query_string = {};
+      var query = window.location.search.substring(1);
+      var vars = query.split("&");
+      for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split("=");
+        // If first entry with this name
+        if (typeof query_string[pair[0]] === "undefined") {
+          query_string[pair[0]] = decodeURIComponent(pair[1]);
+          // If second entry with this name
+        } else if (typeof query_string[pair[0]] === "string") {
+          var arr = [query_string[pair[0]], decodeURIComponent(pair[1])];
+          query_string[pair[0]] = arr;
+          // If third or later entry with this name
+        } else {
+          query_string[pair[0]].push(decodeURIComponent(pair[1]));
+        }
+      }
+      return query_string;
+    }
+
+    /* ======== Static ======== */
+    // TODO make non static probably
+    // some static helper functions
 
   }, {
     key: "width",
@@ -450,9 +502,6 @@ var DragBox = function () {
         return $(this.boxElement).find(".dragbox-content");
       }
     }
-
-    // some static helper functions
-
   }], [{
     key: "stayInWindow",
     value: function stayInWindow(element) {
@@ -535,14 +584,16 @@ var SmartModal = function (_DragBox) {
     _this.DEFAULT_BUTTON_HTML = {
       closebutton: '<button type="button" class="btn btn-secondary smartmodal-closebutton">Close</button>',
       nextbutton: '<button type="button" class="btn btn-secondary smartmodal-nextbutton">Next</button>',
-      blankbutton: '<button type="button" class="btn btn-secondary smartmodal-blankbutton"></button>'
+      blankbutton: '<button type="button" class="btn btn-secondary smartmodal-blankbutton"></button>',
+      sendbutton: '<button type="button" class="btn btn-secondary smartmodal-sendbutton">Send</button>'
     };
     _this.DEFAULT_FORMAT_TYPES = {
       // format type desribe the topOffset, width, and height of the modal in proportion
       // updatePosition is called when the window is resized
       centralSmall: [0.2, 0.4, 0.3],
       centralLarge: [0.2, 0.7, 0.6],
-      across: [0.3, 1, 0.4]
+      across: [0.3, 1, 0.4],
+      overlay: [0.1, 0.1, 0.8]
     };
 
     // callback
@@ -645,6 +696,32 @@ var ParamBox = function (_DragBox2) {
 
     _this2.DEFAULT_ROW_HTML = '<div class="col-md-12 dragbox-row paramboxtmprow"></div>';
 
+    _this2.PARAMBOX_EMPTY_ROW_HTML = '<div class="col-md-12 dragbox-row parambox-empty"><center>No parameters binded.</center></div>';
+
+    _this2.DEFAULT_BUTTON_ROW_HTML = '<div class="col-xs-12 dragbox-row parambox-buttonrow"></div>';
+    _this2.DEFAULT_BUTTON_HTML = {
+      savebutton: '<button type="button" class="btn btn-secondary btn-block parambox-savebutton">Save</button>',
+      importbutton: '<button type="button" class="btn btn-secondary  btn-block parambox-importbutton">Import</button>',
+      reloadbutton: '<button type="button" class="btn btn-secondary btn-block parambox-reloadbutton">Reload</button>'
+    };
+
+    // setup the buttons
+    _this2.append(_this2.DEFAULT_BUTTON_ROW_HTML, ".dragbox-footer");
+    _this2.append(_this2.DEFAULT_BUTTON_HTML.savebutton, ".parambox-buttonrow", "col-xs-4");
+    _this2.append(_this2.DEFAULT_BUTTON_HTML.importbutton, ".parambox-buttonrow", "col-xs-4");
+    _this2.append(_this2.DEFAULT_BUTTON_HTML.reloadbutton, ".parambox-buttonrow", "col-xs-4");
+
+    var thisObject = _this2;
+    _this2.boxElement[0].getElementsByClassName("parambox-savebutton")[0].addEventListener("click", function (e) {
+      thisObject.save(e);
+    });
+    _this2.boxElement[0].getElementsByClassName("parambox-importbutton")[0].addEventListener("click", function (e) {
+      thisObject.import(e);
+    });
+    _this2.boxElement[0].getElementsByClassName("parambox-reloadbutton")[0].addEventListener("click", function (e) {
+      thisObject.reloadAndImport(e);
+    });
+
     // ui
     _this2.rowHtml = _this2.DEFAULT_ROW_HTML;
 
@@ -656,6 +733,20 @@ var ParamBox = function (_DragBox2) {
 
     // set overflow
     _this2.overflow = "scroll";
+
+    // set prefix for exports TODO: IMPLEMENT IT IN EXPORTS
+    if (typeof window.paramPrefixIncrement === "undefined") {
+      window.paramPrefixIncrement = 0;
+    } else {
+      window.paramPrefixIncrement += 1;
+    }
+
+    _this2.prefix = "paramBox" + window.paramPrefixIncrement;
+
+    // update size and refreshView
+    _this2.updateSize();
+
+    _this2.refreshView();
 
     return _this2;
   }
@@ -673,61 +764,60 @@ var ParamBox = function (_DragBox2) {
       }
 
       var objectHierarchy = null;
-      if (properties.constructor === Array) {
-        for (var i = 0; i < properties.length; i++) {
 
-          objectHierarchy = this.getDescendantProp(object, properties[i]);
-          var objectTemp = objectHierarchy[0];
-          var property = objectHierarchy[1];
+      if (properties.constructor !== Array) {
+        properties = [properties];
+      }
 
-          var rowDom = this.newRowInDom();
-          var bindedField = null;
+      for (var i = 0; i < properties.length; i++) {
 
-          // look for a constrained field
-          if (constraints !== null) {
-            if (typeof constraints[properties[i]] != 'undefined') {
-              var bindedField = new BindedField(objectTemp, property, rowDom, 'selector', constraints[properties[i]]);
-            }
-          }
-
-          // if not constrained field found, create the most relevant type of field
-          if (!bindedField) {
-            if (objectTemp[property].constructor === Boolean) {
-              var bindedField = new BindedField(objectTemp, property, rowDom, 'selector', ["TRUE", "FALSE"]);
-            } else {
-              var bindedField = new BindedField(objectTemp, property, rowDom);
-            }
-          }
-
-          this.rows.push(this.getBindedRow(rowDom, bindedField));
-        }
-      } else {
-
-        objectHierarchy = this.getDescendantProp(object, properties);
+        objectHierarchy = this.getDescendantProp(object, properties[i]); // TODO use lodash ?
         var objectTemp = objectHierarchy[0];
         var property = objectHierarchy[1];
 
         var rowDom = this.newRowInDom();
         var bindedField = null;
 
+        /* --- look for a value in the query string for this property --- */
+        var initialValue = null;
+        if (typeof this.queryString[property] !== "undefined") {
+          initialValue = this.queryString[property];
+        }
+
         // look for a constrained field
         if (constraints !== null) {
-          if (typeof constraints[properties] !== 'undefined') {
-            var bindedField = new BindedField(objectTemp, property, rowDom, 'selector', constraints[properties]);
+          if (typeof constraints[properties[i]] != 'undefined') {
+            var constraintValues = constraints[properties[i]];
+
+            if (initialValue !== null) {
+              if (constraintValues.indexOf(initialValue) === -1) {
+                throw new Error("ParamBox.bind: cannot set initial value to query string value of " + initialValue + " because it is not in the constraints array.");
+              }
+
+              objectTemp[property] = initialValue;
+            }
+
+            var bindedField = new BindedField(objectTemp, property, rowDom, 'selector', constraintValues);
           }
         }
 
-        // if not constrained field found, create the most relevant type of field
+        // if no constrained field found, create the most relevant type of field
         if (!bindedField) {
+          if (initialValue !== null) {
+            objectTemp[property] = initialValue;
+          }
+
           if (objectTemp[property].constructor === Boolean) {
-            var bindedField = new BindedField(objectTemp, property, rowDom, 'selector', ["TRUE", "FALSE"]);
+            var bindedField = new BindedField(objectTemp, property, rowDom, 'selector', ["TRUE", "FALSE"], initialValue);
           } else {
-            var bindedField = new BindedField(objectTemp, property, rowDom);
+            var bindedField = new BindedField(objectTemp, property, rowDom, 'input', null, initialValue);
           }
         }
 
         this.rows.push(this.getBindedRow(rowDom, bindedField));
       }
+
+      this.refreshView();
     }
   }, {
     key: "unbind",
@@ -740,10 +830,15 @@ var ParamBox = function (_DragBox2) {
           bindedField.delete();
         }
       }
+
+      this.refreshView();
     }
 
     // ui methods
 
+  }, {
+    key: "addExportButton",
+    value: function addExportButton() {}
   }, {
     key: "newRowInDom",
     value: function newRowInDom() {
@@ -765,9 +860,23 @@ var ParamBox = function (_DragBox2) {
   }, {
     key: "refreshView",
     value: function refreshView() {
-      // check if all binded field are displayed in the paramBox
-      // if not add them
-      // get rid of unbinded field
+      // TODO: maybe check if all binded field are displayed in the paramBox. if not add them. get rid of unbinded field
+
+      /* --- Add an export button if there is at least one binded property --- */
+      if (this.rows.length) {
+        this.boxElement[0].getElementsByClassName("parambox-buttonrow")[0].style.visibility = "visible";
+      } else {
+        this.boxElement[0].getElementsByClassName("parambox-buttonrow")[0].style.visibility = "hidden";
+        //TODO: add empty message
+      }
+
+      /* --- Adapt the box's height to the number of parameters --- */
+      var height = 80 + this.rows.length * 75;
+      if (height > 600) {
+        height = 600;
+      }
+
+      this.height = height;
     }
   }, {
     key: "keyfunction",
@@ -787,6 +896,94 @@ var ParamBox = function (_DragBox2) {
         // prevent default action if any
         e.preventDefault();
       }
+    }
+
+    /* ======== Import/Export functions ======== */
+
+  }, {
+    key: "getSummaryArray",
+    value: function getSummaryArray() {
+      var summaryArray = [];
+      for (var i = 0; i < this.rows.length; i++) {
+        var bindedField = this.rows[i].bindedField;
+        summaryArray.push({
+          property: bindedField.property,
+          value: bindedField.value
+        });
+      }
+
+      return summaryArray;
+    }
+  }, {
+    key: "import",
+    value: function _import(event) {
+      // make it a smart form
+      // but while smart forms are finished use a simple prompt
+      var importedString = prompt("Enter a JSON string:");
+      var importedJSON = null;
+      try {
+        importedJSON = JSON.parse(importedString);
+      } catch (e) {
+        console.error("ParamBox.import: Invalid JSON string - Parsing error:", e);
+      }
+
+      if (importedJSON !== null) {
+        if (importedJSON.constructor !== Array) {
+          console.error("ParamBox.import: Invalid JSON string - the parent object needs to be of the same structure as the summaryArray");
+        }
+
+        for (var i = 0; i < importedJSON.length; i++) {
+          if (typeof importedJSON[i].property === "undefined") {
+            console.error("ParamBox.import: importedJSON[" + i + "].property is undefined. Invalid JSON string - the parent object needs to be of the same structure as the summaryArray.");
+          }
+          if (typeof importedJSON[i].value === "undefined") {
+            console.error("ParamBox.import: importedJSON[" + i + "].value is undefined. Invalid JSON string - the parent object needs to be of the same structure as the summaryArray.");
+          }
+
+          this.setProperty(importedJSON[i].property, importedJSON[i].value);
+        }
+      }
+    }
+  }, {
+    key: "save",
+    value: function save(event) {
+      // get summary array
+      var summaryArray = this.getSummaryArray();
+
+      // stringify summary object
+      var stringified = JSON.stringify(summaryArray, null, 2);
+
+      // opens a new window with the stringified json
+      var height = 30 + summaryArray.length * 70;
+      if (height > 500) {
+        height = 500;
+      }
+      window.open('data:application/json;' + (window.btoa ? 'base64,' + btoa(stringified) : stringified), "ParamBox.save", "width=400,height=" + height);
+    }
+  }, {
+    key: "reloadAndImport",
+    value: function reloadAndImport(event) {
+      /* --- Serialize the parameters in URL format --- */
+
+      var summaryArray = this.getSummaryArray();
+      var str = "";
+      for (var i = 0; i < summaryArray.length; i++) {
+        if (str !== "") {
+          str += "&";
+        }
+        str += summaryArray[i].property + "=" + encodeURIComponent(summaryArray[i].value);
+      }
+
+      /* --- Append the parameters and reload the page --- */
+
+      var url = window.location.href;
+      var questionPosition = url.indexOf("?");
+      if (questionPosition !== -1) {
+        // delete arguments from the URL
+        url = url.substring(0, questionPosition);
+      }
+      url += "?" + str;
+      window.location.href = url;
     }
 
     /**
@@ -819,10 +1016,70 @@ var ParamBox = function (_DragBox2) {
 
       return [parentObject, lastProperty, propertyValue];
     }
+  }, {
+    key: "setProperty",
+    value: function setProperty(property, value) {
+      if (property.constructor !== String) {
+        throw new Error("ParamBox.setProperty: property needs to be a string.");
+      }
+
+      var found = false;
+      for (var i = 0; i < this.rows.length; i++) {
+        if (this.rows[i].bindedField.property === property) {
+          this.rows[i].bindedField.value = value;
+          found = true;
+        }
+      }
+
+      if (found === false) {
+        console.warn("ParamBox.setProperty: did not find property " + property);
+      }
+    }
   }]);
 
   return ParamBox;
 }(DragBox);
+
+/** TODO: Class generating a form based on preset fields and managing */
+// class SmartForm extends SmartModal {
+//   constructor(fields = mandatory(), callback = null, url = null, boxElement = null) {
+//     if (fields.constructor !== Object) {
+//       throw new Error("SmartForm: fields is not an object.");
+//     }
+
+//     /* --- Create the modal for the form --- */
+//     super("overlay", callback, "sendbutton", boxElement);
+
+//     // TODO Create the form element IF url !== null, else only use the callback to handle data.
+
+//     // constraints can be functions like checkPassword(x) { return (bool) }
+//     this.fields = {};
+//     var keys = _.keys(fields);
+//     for (var i = 0; i < keys.length; i++) {
+//       var key = keys[i];
+//       // fields needs to have a name and type property
+//       if (typeof fields[key].type === "undefined") {
+//         throw new Error("SmartForm: field[" + i + "].type is undefinned");
+//       }
+
+//       var baseField = {
+//         type: null,
+//         constraints: null,
+//         value: "",
+//         bindedField: null
+//       };
+
+//       fields[key] = _.extends(baseField, fields[key]); // TODO Either migrate to lodash or rewrite an extend function as well a a keys function
+
+//       this.fields[key] = fields[key];
+
+//       // TODO Create a form row
+//       this.fields[key].bindedField = new BindedField(this.fields, key, this.content, this.fields[key].type, this.fields[key].constraints);
+
+//     }
+
+//   }
+// }
 
 var BindedProperty = function () {
   function BindedProperty() {
@@ -845,7 +1102,7 @@ var BindedProperty = function () {
       this.object = window;
     }
 
-    if (property) {
+    if (property !== null) {
       this.bind(object, property);
     }
   }
@@ -1004,7 +1261,11 @@ var BindedField = function (_BindedProperty) {
 
       if (this.allowedValues) {
         if (this.allowedValues.constructor === Array) {
-          this.field.val(this.allowedValues[0]);
+          if (this.allowedValues.indexOf(this.value) !== -1) {
+            this.field.val(this.value);
+          } else {
+            this.field.val(this.allowedValues[0]);
+          }
         } else {
           this.field.val(this.value);
         }

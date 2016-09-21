@@ -13,6 +13,8 @@
         <link href="bootstrap.css" rel="stylesheet" type="text/css"/>
         <link href="../dist/paramBox.css" rel="stylesheet" type="text/css"/>
         <script type="text/javascript">
+            var paramBox = null;
+
             window.exampleObject = {
                 selectedColor:"red",
                 textForSelected: "is currently selected",
@@ -47,7 +49,7 @@
 
                 /* if ParamBox library is loaded - create one */
                 if (typeof ParamBox === "function") {
-                  var paramBox = new ParamBox();
+                  paramBox = new ParamBox();
                   paramBox.bind(window.exampleObject, parametersNames, parametersConstraints);
                 }
 
