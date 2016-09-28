@@ -481,6 +481,7 @@ var DragBox = function () {
     set: function set(html) {
       if (this.boxElement) {
         $(this.boxElement).find(".dragbox-title").html(html);
+        this.updateSize();
       }
     }
   }, {
@@ -488,6 +489,7 @@ var DragBox = function () {
     set: function set(html) {
       if (this.boxElement) {
         this.contentDiv.html(html);
+        this.updateSize();
       }
     },
     get: function get() {

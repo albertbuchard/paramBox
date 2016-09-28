@@ -412,12 +412,14 @@ class DragBox {
   set title(html) {
     if (this.boxElement) {
       $(this.boxElement).find(".dragbox-title").html(html);
+      this.updateSize();
     }
   }
 
   set content(html) {
     if (this.boxElement) {
       this.contentDiv.html(html);
+      this.updateSize();
     }
   }
 
