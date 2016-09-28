@@ -562,6 +562,7 @@ class SmartModal extends DragBox {
 
     // update position to fit the screen adequatly and show
     this.updatePosition();
+    this.updateSize();
     this.show();
 
     // event listener for window resize updates the size and position.
@@ -707,7 +708,7 @@ class ParamBox extends DragBox {
               throw new Error("ParamBox.bind: cannot set initial value to query string value of " + initialValue + " because it is not in the constraints array.");
             }
 
-            objectTemp[property] = initialValue;
+            objectTemp[property] = objectTemp[property].constructor(initialValue);
           }
 
           var bindedField = new BindedField(objectTemp, property, rowDom, 'selector', constraintValues);
@@ -717,7 +718,7 @@ class ParamBox extends DragBox {
       // if no constrained field found, create the most relevant type of field
       if (!bindedField) {
         if (initialValue !== null) {
-          objectTemp[property] = initialValue;
+          objectTemp[property] = objectTemp[property].constructor(initialValue);
         }
 
         if (objectTemp[property].constructor === Boolean) {
