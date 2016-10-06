@@ -8,13 +8,13 @@ paramBox is a collection of smart plug and play tools to facilitate the design o
 ## Description 
 A ParamBox is a little draggable div allowing you to do double binding with any variable of your page. It is often long to go back and forth between your code and the page when you want to change the value of just one variable. This box allows you to to have all your variables in check for quick access.
 
-Two other classes are currently avaible : DragBox (simple draggable box), and SmartModal (a configurable modal).
+Three other classes are currently avaible : DragBox (simple draggable box), SmartChart and SmartModal (a configurable modal).
 
 http://imgur.com/4OcMkNR
 
 ## Require
 
-For now : jQuery, Bootstrap
+For now : jQuery, Bootstrap, Chart.js for SmartChart object
 
 ## Install
 
@@ -24,12 +24,24 @@ You can either clone the repo, download the files in the dist folder, or use npm
 
 Then, to install a paramBox :
 ```
-	<link rel="stylesheet" type="text/css" href="/node_modules/bootstrap/dist/css/bootstrap.min.css"></link>
-	<link rel="stylesheet" type="text/css" href="/dist/paramBox.css"></link>
-	<script type="text/javascript" src="/dist/paramBox-compiled.js"></script>
+	
+	<!-- Load jquery -->
+    <script src="jquery.min.js">
+    </script>
+    <!-- Load Chart.js -->
+    <script src="Chart.bundle.js">
+    </script>
+    <!-- Load Bootstrap -->
+    <script src="bootstrap.min.js">
+    </script>
+    <link href="bootstrap.css" rel="stylesheet" type="text/css"/>
+    <!-- Load Parambox -->
+    <script src="/dist/paramBox.min.js" type="text/javascript">
+    </script>
+
 	<script type="text/javascript">
-		// one example of implementation could be
-    var paramBox = null;
+		// one example of implementation could be 
+    	var paramBox = null;
 		$(document).ready(function(){
 				// we suppose you have an object "Task" holding all your variables. 
 				// If your variables are in the global space you can just put window as an object
@@ -113,6 +125,41 @@ To create a modal :
 	var modalBox = new SmartModal("centralSmall", function() { console.log("Modal Destroyed"); })
 	modalBox.title = "<h4><center>This is a modal</center></h4>"
 	modalBox.content = "Very important information, needed a modal."
+
+### SmartChart
+Using Chart.js. 
+
+	var smartChartInstance = null;
+
+    var chartOptions = {
+        type: 'bar',
+        data: {
+            labels: ['Item 1', 'Item 2', 'Item 3'],
+            datasets: [
+                {
+                    type: 'bar',
+                    label: 'Bar Component',
+                    data: [10, 20, 30],
+                },
+                {
+                    type: 'line',
+                    label: 'Line Component',
+                    data: [30, 20, 10],
+                }
+            ]
+        }
+    }; 
+
+	document.addEventListener("DOMContentLoaded", function(event) {
+
+        /* if ParamBox library is loaded - create a chart */
+        if (typeof SmartChart === "function") {
+          smartChartInstance = new SmartChart(chartOptions, function(){ console.log("Chart Closed"); }); 
+        } 
+
+    });
+
+See exampleChart.html for a simple example. 
 
 ## Developped in the Bavelier Lab by
 * Albert Buchard
