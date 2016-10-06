@@ -1,3 +1,35 @@
+/**
+ * ParamBox.JS
+ * Created. 2016
+ *
+ * Plug and play tools for easy development in js. Part of the experiment.js toolbox.
+ * 
+ * Authors. Albert Buchard 
+ *
+ * Requires: bootstrap and jQuery
+ * 
+ * LICENSE MIT 
+ */
+
+/* =============== Set-up =============== */
+
+/* === Get the absolute path of the library === */
+var scripts = document.getElementsByTagName("script");
+var paramBoxFullpath = scripts[scripts.length - 1].src;
+var delimiterIndices = findAllIndices("/", paramBoxFullpath);
+paramBoxFullpath = paramBoxFullpath.substr(0, delimiterIndices[delimiterIndices.length - 2]);
+
+/* === Add the paramBox css once the page is loaded === */
+document.addEventListener("DOMContentLoaded", function (event) {
+  var head = document.getElementsByTagName('head')[0];
+  var link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.type = 'text/css';
+  link.href = paramBoxFullpath + '/dist/paramBox.css';
+  head.appendChild(link);
+});
+
+/** Dragable div - Parent class suporting the toolbox  */
 class DragBox {
   constructor(boxElement = null, width = null, height = null) {
       // constants
@@ -117,7 +149,7 @@ class DragBox {
 
     var contentHeight = this.height -
       $(this.boxElement).find(".dragbox-title").height() -
-      $(this.boxElement).find(".dragbox-footer").height();
+      $(this.boxElement).find(".dragbox-footer").height() - 7;
 
     var thisObject = this;
     $(this.boxElement).animate({
@@ -513,8 +545,7 @@ class DragBox {
   }
 }
 
-// SmartModal Class
-
+/** Helper class creating modals */
 class SmartModal extends DragBox {
   constructor(formatType = "across", callback = null, buttonType = "closebutton", boxElement = null) {
     // call super constructor
@@ -523,10 +554,10 @@ class SmartModal extends DragBox {
     // constants
     this.DEFAULT_BUTTON_ROW_HTML = '<div class="col-xs-12 dragbox-row smartmodal-buttonrow"></div>';
     this.DEFAULT_BUTTON_HTML = {
-      closebutton: '<button type="button" class="btn btn-secondary smartmodal-closebutton">Close</button>',
-      nextbutton: '<button type="button" class="btn btn-secondary smartmodal-nextbutton">Next</button>',
-      blankbutton: '<button type="button" class="btn btn-secondary smartmodal-blankbutton"></button>',
-      sendbutton: '<button type="button" class="btn btn-secondary smartmodal-sendbutton">Send</button>',
+      closebutton: '<button type="button" class="btn btn-secondary dragbox-button  smartmodal-closebutton">Close</button>',
+      nextbutton: '<button type="button" class="btn btn-secondary dragbox-button smartmodal-nextbutton">Next</button>',
+      blankbutton: '<button type="button" class="btn btn-secondary dragbox-button smartmodal-blankbutton"></button>',
+      sendbutton: '<button type="button" class="btn btn-secondary dragbox-button smartmodal-sendbutton">Send</button>',
     };
     this.DEFAULT_FORMAT_TYPES = {
       // format type desribe the topOffset, width, and height of the modal in proportion
@@ -534,7 +565,7 @@ class SmartModal extends DragBox {
       centralSmall: [0.2, 0.4, 0.3],
       centralLarge: [0.2, 0.7, 0.6],
       across: [0.3, 1, 0.4],
-      overlay: [0.1, 0.1, 0.8]
+      overlay: [0.1, 0.8, 0.8]
     };
 
     // callback 
@@ -563,9 +594,7 @@ class SmartModal extends DragBox {
     this.button = $(this.boxElement).find(".smartmodal-" + this.buttonType);
 
     // update position to fit the screen adequatly and show
-    this.updatePosition();
-    this.updateSize();
-    this.show();
+    this.callAfterConstructor();
 
     // event listener for window resize updates the size and position.
     var smartModalObject = this;
@@ -578,6 +607,14 @@ class SmartModal extends DragBox {
       smartModalObject.callThenDestroy();
     });
 
+  }
+
+  // after setup life cycle function
+  callAfterConstructor() {
+    // update position to fit the screen adequatly and show
+    this.updatePosition();
+    this.updateSize();
+    this.show();
   }
 
   // look for a callback then destroy
@@ -611,6 +648,7 @@ class SmartModal extends DragBox {
   }
 }
 
+/** Dragable box holding double binded parameters for live development */
 class ParamBox extends DragBox {
   constructor(boxElement = null) {
     // call super constructor
@@ -623,9 +661,9 @@ class ParamBox extends DragBox {
 
     this.DEFAULT_BUTTON_ROW_HTML = '<div class="col-xs-12 dragbox-row parambox-buttonrow"></div>';
     this.DEFAULT_BUTTON_HTML = {
-      savebutton: '<button type="button" class="btn btn-secondary btn-block parambox-savebutton">Save</button>',
-      importbutton: '<button type="button" class="btn btn-secondary  btn-block parambox-importbutton">Import</button>',
-      reloadbutton: '<button type="button" class="btn btn-secondary btn-block parambox-reloadbutton">Reload</button>'
+      savebutton: '<button type="button" class="btn btn-secondary btn-block dragbox-button parambox-savebutton">Save</button>',
+      importbutton: '<button type="button" class="btn btn-secondary  btn-block dragbox-button parambox-importbutton">Import</button>',
+      reloadbutton: '<button type="button" class="btn btn-secondary btn-block dragbox-button parambox-reloadbutton">Reload</button>'
     };
 
     // setup the buttons
@@ -943,6 +981,69 @@ class ParamBox extends DragBox {
 
 }
 
+/** Wrapper class for easy chart creation using chart.js and SmartModal */
+class SmartChart extends SmartModal {
+  constructor(options = mandatory(), callback = null, boxElement = null) {
+    if (typeof Chart === "undefined") {
+      throw new Error("SmartChart.constructor: Chart.js is not loaded.");
+    }
+
+    if (options.constructor !== Object) {
+      throw new Error("SmartChart.constructor: options needs to be an object (chart.js chart options)");
+    }
+    super("overlay", callback, "closebutton", boxElement);
+    // set dragbox title
+    this.title = '<center><h5>Smart Chart</h5></center>';
+
+    // Create canvas 
+    var canvasID = "chart-canvas" + ($("canvas").length + 1);
+    this.content = '<canvas id="' + canvasID + '" class="chart-canvas"></canvas>';
+    this.canvas = document.getElementById(canvasID);
+
+    // Create chart
+    try {
+      Chart.defaults.global.responsive = true;
+      Chart.defaults.global.maintainAspectRatio = false;
+      this.chart = new Chart(this.canvas, options);
+    } catch (e) {
+      throw new Error("SmartChart.constructor: could not build the chart. Error: " + e);
+    }
+
+    this.canvas.style.background = "white";
+    this.boxClass = "dragbox-white-boxshadow";
+
+    this.updatePosition();
+    this.updateSize();
+    var thisObject = this;
+    setTimeout(function () {
+      thisObject.chart.resize();
+      thisObject.show();
+    }, 250);
+
+  }
+
+  callAfterConstructor() {
+    // overide smart modal
+  }
+
+  /** Overides SmartModal.callThenDestroy() function */
+  callThenDestroy() {
+    // look for a callback then destroy
+    if (this.callback) {
+      this.callback();
+    }
+
+    // if chart destroy the chart .destroy()
+    if ((typeof this.chart !== "undefined") && (typeof Chart !== "undefined")) {
+      if (this.chart.constructor === Chart) {
+        this.chart.destroy();
+      }
+    }
+    // call Dragbox.destroy()
+    this.destroy();
+  }
+
+}
 /** TODO: Class generating a form based on preset fields and managing */
 // class SmartForm extends SmartModal {
 //   constructor(fields = mandatory(), callback = null, url = null, boxElement = null) {
@@ -1216,4 +1317,25 @@ class BindedField extends BindedProperty {
 // utilities
 function mandatory(param = "") {
   throw new Error('Missing parameter ' + param);
+}
+
+/**
+ * Find all the positions of a needle in a haystack string
+ * @param  {string} needle   string to find
+ * @param  {string} haystack string to scan
+ * @return {Array}  Either -1 if no match is found or an array containing the indicies
+ */
+function findAllIndices(needle = mandatory(), haystack = mandatory()) {
+  var indices = [];
+  for (var i = 0; i < haystack.length; i++) {
+    if ((haystack.substr(i, needle.length)) === needle) {
+      indices.push(i);
+    }
+  }
+
+  if (indices.length) {
+    return (indices);
+  } else {
+    return (-1);
+  }
 }

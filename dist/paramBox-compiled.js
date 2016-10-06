@@ -10,6 +10,39 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+/**
+ * ParamBox.JS
+ * Created. 2016
+ *
+ * Plug and play tools for easy development in js. Part of the experiment.js toolbox.
+ * 
+ * Authors. Albert Buchard 
+ *
+ * Requires: bootstrap and jQuery
+ * 
+ * LICENSE MIT 
+ */
+
+/* =============== Set-up =============== */
+
+/* === Get the absolute path of the library === */
+var scripts = document.getElementsByTagName("script");
+var paramBoxFullpath = scripts[scripts.length - 1].src;
+var delimiterIndices = findAllIndices("/", paramBoxFullpath);
+paramBoxFullpath = paramBoxFullpath.substr(0, delimiterIndices[delimiterIndices.length - 2]);
+
+/* === Add the paramBox css once the page is loaded === */
+document.addEventListener("DOMContentLoaded", function (event) {
+  var head = document.getElementsByTagName('head')[0];
+  var link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.type = 'text/css';
+  link.href = paramBoxFullpath + '/dist/paramBox.css';
+  head.appendChild(link);
+});
+
+/** Dragable div - Parent class suporting the toolbox  */
+
 var DragBox = function () {
   function DragBox() {
     var boxElement = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
@@ -135,7 +168,7 @@ var DragBox = function () {
       $(this.boxElement).width(this.width);
       $(this.boxElement).height(this.height);
 
-      var contentHeight = this.height - $(this.boxElement).find(".dragbox-title").height() - $(this.boxElement).find(".dragbox-footer").height();
+      var contentHeight = this.height - $(this.boxElement).find(".dragbox-title").height() - $(this.boxElement).find(".dragbox-footer").height() - 7;
 
       var thisObject = this;
       $(this.boxElement).animate({
@@ -563,7 +596,8 @@ var DragBox = function () {
   return DragBox;
 }();
 
-// SmartModal Class
+/** Helper class creating modals */
+
 
 var SmartModal = function (_DragBox) {
   _inherits(SmartModal, _DragBox);
@@ -584,10 +618,10 @@ var SmartModal = function (_DragBox) {
 
     _this.DEFAULT_BUTTON_ROW_HTML = '<div class="col-xs-12 dragbox-row smartmodal-buttonrow"></div>';
     _this.DEFAULT_BUTTON_HTML = {
-      closebutton: '<button type="button" class="btn btn-secondary smartmodal-closebutton">Close</button>',
-      nextbutton: '<button type="button" class="btn btn-secondary smartmodal-nextbutton">Next</button>',
-      blankbutton: '<button type="button" class="btn btn-secondary smartmodal-blankbutton"></button>',
-      sendbutton: '<button type="button" class="btn btn-secondary smartmodal-sendbutton">Send</button>'
+      closebutton: '<button type="button" class="btn btn-secondary dragbox-button  smartmodal-closebutton">Close</button>',
+      nextbutton: '<button type="button" class="btn btn-secondary dragbox-button smartmodal-nextbutton">Next</button>',
+      blankbutton: '<button type="button" class="btn btn-secondary dragbox-button smartmodal-blankbutton"></button>',
+      sendbutton: '<button type="button" class="btn btn-secondary dragbox-button smartmodal-sendbutton">Send</button>'
     };
     _this.DEFAULT_FORMAT_TYPES = {
       // format type desribe the topOffset, width, and height of the modal in proportion
@@ -595,7 +629,7 @@ var SmartModal = function (_DragBox) {
       centralSmall: [0.2, 0.4, 0.3],
       centralLarge: [0.2, 0.7, 0.6],
       across: [0.3, 1, 0.4],
-      overlay: [0.1, 0.1, 0.8]
+      overlay: [0.1, 0.8, 0.8]
     };
 
     // callback
@@ -624,9 +658,7 @@ var SmartModal = function (_DragBox) {
     _this.button = $(_this.boxElement).find(".smartmodal-" + _this.buttonType);
 
     // update position to fit the screen adequatly and show
-    _this.updatePosition();
-    _this.updateSize();
-    _this.show();
+    _this.callAfterConstructor();
 
     // event listener for window resize updates the size and position.
     var smartModalObject = _this;
@@ -642,10 +674,21 @@ var SmartModal = function (_DragBox) {
     return _this;
   }
 
-  // look for a callback then destroy
+  // after setup life cycle function
 
 
   _createClass(SmartModal, [{
+    key: "callAfterConstructor",
+    value: function callAfterConstructor() {
+      // update position to fit the screen adequatly and show
+      this.updatePosition();
+      this.updateSize();
+      this.show();
+    }
+
+    // look for a callback then destroy
+
+  }, {
     key: "callThenDestroy",
     value: function callThenDestroy() {
       if (this.callback) {
@@ -683,6 +726,9 @@ var SmartModal = function (_DragBox) {
   return SmartModal;
 }(DragBox);
 
+/** Dragable box holding double binded parameters for live development */
+
+
 var ParamBox = function (_DragBox2) {
   _inherits(ParamBox, _DragBox2);
 
@@ -703,9 +749,9 @@ var ParamBox = function (_DragBox2) {
 
     _this2.DEFAULT_BUTTON_ROW_HTML = '<div class="col-xs-12 dragbox-row parambox-buttonrow"></div>';
     _this2.DEFAULT_BUTTON_HTML = {
-      savebutton: '<button type="button" class="btn btn-secondary btn-block parambox-savebutton">Save</button>',
-      importbutton: '<button type="button" class="btn btn-secondary  btn-block parambox-importbutton">Import</button>',
-      reloadbutton: '<button type="button" class="btn btn-secondary btn-block parambox-reloadbutton">Reload</button>'
+      savebutton: '<button type="button" class="btn btn-secondary btn-block dragbox-button parambox-savebutton">Save</button>',
+      importbutton: '<button type="button" class="btn btn-secondary  btn-block dragbox-button parambox-importbutton">Import</button>',
+      reloadbutton: '<button type="button" class="btn btn-secondary btn-block dragbox-button parambox-reloadbutton">Reload</button>'
     };
 
     // setup the buttons
@@ -1043,6 +1089,90 @@ var ParamBox = function (_DragBox2) {
   return ParamBox;
 }(DragBox);
 
+/** Wrapper class for easy chart creation using chart.js and SmartModal */
+
+
+var SmartChart = function (_SmartModal) {
+  _inherits(SmartChart, _SmartModal);
+
+  function SmartChart() {
+    var options = arguments.length <= 0 || arguments[0] === undefined ? mandatory() : arguments[0];
+    var callback = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+    var boxElement = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+
+    _classCallCheck(this, SmartChart);
+
+    if (typeof Chart === "undefined") {
+      throw new Error("SmartChart.constructor: Chart.js is not loaded.");
+    }
+
+    if (options.constructor !== Object) {
+      throw new Error("SmartChart.constructor: options needs to be an object (chart.js chart options)");
+    }
+
+    // set dragbox title
+
+    var _this3 = _possibleConstructorReturn(this, Object.getPrototypeOf(SmartChart).call(this, "overlay", callback, "closebutton", boxElement));
+
+    _this3.title = '<center><h5>Smart Chart</h5></center>';
+
+    // Create canvas
+    var canvasID = "chart-canvas" + ($("canvas").length + 1);
+    _this3.content = '<canvas id="' + canvasID + '" class="chart-canvas"></canvas>';
+    _this3.canvas = document.getElementById(canvasID);
+
+    // Create chart
+    try {
+      Chart.defaults.global.responsive = true;
+      Chart.defaults.global.maintainAspectRatio = false;
+      _this3.chart = new Chart(_this3.canvas, options);
+    } catch (e) {
+      throw new Error("SmartChart.constructor: could not build the chart. Error: " + e);
+    }
+
+    _this3.canvas.style.background = "white";
+    _this3.boxClass = "dragbox-white-boxshadow";
+
+    _this3.updatePosition();
+    _this3.updateSize();
+    var thisObject = _this3;
+    setTimeout(function () {
+      thisObject.chart.resize();
+      thisObject.show();
+    }, 250);
+
+    return _this3;
+  }
+
+  _createClass(SmartChart, [{
+    key: "callAfterConstructor",
+    value: function callAfterConstructor() {}
+    // overide smart modal
+
+
+    /** Overides SmartModal.callThenDestroy() function */
+
+  }, {
+    key: "callThenDestroy",
+    value: function callThenDestroy() {
+      // look for a callback then destroy
+      if (this.callback) {
+        this.callback();
+      }
+
+      // if chart destroy the chart .destroy()
+      if (typeof this.chart !== "undefined" && typeof Chart !== "undefined") {
+        if (this.chart.constructor === Chart) {
+          this.chart.destroy();
+        }
+      }
+      // call Dragbox.destroy()
+      this.destroy();
+    }
+  }]);
+
+  return SmartChart;
+}(SmartModal);
 /** TODO: Class generating a form based on preset fields and managing */
 // class SmartForm extends SmartModal {
 //   constructor(fields = mandatory(), callback = null, url = null, boxElement = null) {
@@ -1203,36 +1333,36 @@ var BindedField = function (_BindedProperty) {
 
     // constant
 
-    var _this3 = _possibleConstructorReturn(this, Object.getPrototypeOf(BindedField).call(this, object, property));
+    var _this4 = _possibleConstructorReturn(this, Object.getPrototypeOf(BindedField).call(this, object, property));
 
-    _this3.VALID_FIELD_TYPE = ["input", "selector", "slider"];
+    _this4.VALID_FIELD_TYPE = ["input", "selector", "slider"];
 
     // field
-    _this3.field = null;
-    _this3.fieldType = fieldType;
-    _this3.fieldHTML = null;
-    _this3.allowedValues = allowedValues;
-    _this3.tempClass = "binded-" + (typeof object === "undefined" ? "undefined" : _typeof(object)) + property;
+    _this4.field = null;
+    _this4.fieldType = fieldType;
+    _this4.fieldHTML = null;
+    _this4.allowedValues = allowedValues;
+    _this4.tempClass = "binded-" + (typeof object === "undefined" ? "undefined" : _typeof(object)) + property;
 
     // parent
-    _this3.parent = parent;
+    _this4.parent = parent;
 
     // build the field html
-    switch (_this3.fieldType) {
+    switch (_this4.fieldType) {
       case 'input':
-        _this3.fieldHTML = '<fieldset class="form-group">' + '<label>' + property + '</label>' + '<input type="text" class="form-control ' + _this3.tempClass + '" data-binded="' + property + '">' + '</fieldset>';
+        _this4.fieldHTML = '<fieldset class="form-group">' + '<label>' + property + '</label>' + '<input type="text" class="form-control ' + _this4.tempClass + '" data-binded="' + property + '">' + '</fieldset>';
         break;
       case 'selector':
         if (!allowedValues) {
           throw new Error("fieldType selector needs at least one allowedValues");
         }
 
-        _this3.fieldHTML = '<fieldset class="form-group">' + '<label>' + property + '</label>' + '<select class="form-control ' + _this3.tempClass + '" data-binded="' + property + '">';
+        _this4.fieldHTML = '<fieldset class="form-group">' + '<label>' + property + '</label>' + '<select class="form-control ' + _this4.tempClass + '" data-binded="' + property + '">';
 
-        for (var i = 0; i < _this3.allowedValues.length; i++) {
-          _this3.fieldHTML = _this3.fieldHTML + '<option value="' + _this3.allowedValues[i] + '">' + _this3.allowedValues[i] + '</option>';
+        for (var i = 0; i < _this4.allowedValues.length; i++) {
+          _this4.fieldHTML = _this4.fieldHTML + '<option value="' + _this4.allowedValues[i] + '">' + _this4.allowedValues[i] + '</option>';
         }
-        _this3.fieldHTML = _this3.fieldHTML + '</select></fieldset>';
+        _this4.fieldHTML = _this4.fieldHTML + '</select></fieldset>';
         break;
       case 'slider':
         break;
@@ -1241,9 +1371,9 @@ var BindedField = function (_BindedProperty) {
     }
 
     if (parent) {
-      _this3.placeInParent();
+      _this4.placeInParent();
     }
-    return _this3;
+    return _this4;
   }
 
   // ui function
@@ -1345,4 +1475,28 @@ function mandatory() {
   var param = arguments.length <= 0 || arguments[0] === undefined ? "" : arguments[0];
 
   throw new Error('Missing parameter ' + param);
+}
+
+/**
+ * Find all the positions of a needle in a haystack string
+ * @param  {string} needle   string to find
+ * @param  {string} haystack string to scan
+ * @return {Array}  Either -1 if no match is found or an array containing the indicies
+ */
+function findAllIndices() {
+  var needle = arguments.length <= 0 || arguments[0] === undefined ? mandatory() : arguments[0];
+  var haystack = arguments.length <= 1 || arguments[1] === undefined ? mandatory() : arguments[1];
+
+  var indices = [];
+  for (var i = 0; i < haystack.length; i++) {
+    if (haystack.substr(i, needle.length) === needle) {
+      indices.push(i);
+    }
+  }
+
+  if (indices.length) {
+    return indices;
+  } else {
+    return -1;
+  }
 }
