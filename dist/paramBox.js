@@ -317,6 +317,25 @@ class DragBox {
     }
   }
 
+  /**
+   * set or get html of the selected child element of the DragBox
+   * @param  {String} child child selector
+   * @param  {?string} value Either null if you want to get the html or a string to set the html of the node
+   * @return {?string}       If value is null, returns a string of the html content of the node. 
+   */
+  html(child = ".dragbox-content", value = null) {
+    // 
+    if (this.boxElement) {
+      var target = (child != "container") ? this.boxElement.find(child) : this.boxElement;
+
+      if (value !== null) {
+        target.html(value);
+      } else {
+        return (target.html());
+      }
+    }
+  }
+
   /* ======== Setters and getters ======== */
 
   set width(width) {
@@ -992,6 +1011,9 @@ class SmartChart extends SmartModal {
       throw new Error("SmartChart.constructor: options needs to be an object (chart.js chart options)");
     }
     super("overlay", callback, "closebutton", boxElement);
+    // save options 
+    this.chartOptions = $.extend(true, {}, options);
+
     // set dragbox title
     this.title = '<center><h5>Smart Chart</h5></center>';
 
@@ -1011,6 +1033,31 @@ class SmartChart extends SmartModal {
 
     this.canvas.style.background = "white";
     this.boxClass = "dragbox-white-boxshadow";
+
+    // setup footer and buttons 
+    this.DEFAULT_BUTTON_ROW_HTML = '<div class="col-xs-12 dragbox-row smartchart-buttonrow"><div class="col-xs-10"></div></div>';
+    this.DEFAULT_BUTTON_HTML = {
+      closebutton: '<button type="button" class="btn btn-secondary dragbox-button  smartchart-closebutton">Close</button>',
+      savebutton: '<button type="button" class="btn btn-secondary dragbox-button smartchart-savebutton">Save</button>'
+    };
+
+    this.html(".dragbox-footer", this.DEFAULT_BUTTON_ROW_HTML);
+
+    this.append(this.DEFAULT_BUTTON_HTML.savebutton, ".smartchart-buttonrow", "col-xs-1 centered");
+    this.append(this.DEFAULT_BUTTON_HTML.closebutton, ".smartchart-buttonrow", "col-xs-1 centered");
+
+    this.closeButton = this.button = $(this.boxElement).find(".smartchart-closebutton");
+    this.saveButton = $(this.boxElement).find(".smartchart-savebutton");
+
+    // event listener on the button
+    thisObject = this;
+    $(this.closebutton).click(function (e) {
+      thisObject.callThenDestroy();
+    });
+
+    $(this.saveButton).click(function (e) {
+      thisObject.save(e);
+    });
 
     this.updatePosition();
     this.updateSize();
@@ -1041,6 +1088,19 @@ class SmartChart extends SmartModal {
     }
     // call Dragbox.destroy()
     this.destroy();
+  }
+
+  save(event) {
+    // stringify summary object
+    var stringified = JSON.stringify(this.chartOptions, null, 2);
+
+    // opens a new window with the stringified json
+    var height = 150 + this.chartOptions.data.datasets.length * 150;
+    if (height > 500) {
+      height = 500;
+    }
+    window.open('data:application/json;' + (window.btoa ? 'base64,' + btoa(stringified) : stringified), "SmartChart.save", "width=400,height=" + height);
+
   }
 
 }
