@@ -1051,7 +1051,7 @@ class SmartChart extends SmartModal {
 
     // event listener on the button
     thisObject = this;
-    $(this.closebutton).click(function (e) {
+    $(this.closeButton).click(function (e) {
       thisObject.callThenDestroy();
     });
 

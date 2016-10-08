@@ -1178,7 +1178,7 @@ var SmartChart = function (_SmartModal) {
 
     // event listener on the button
     thisObject = _this3;
-    $(_this3.closebutton).click(function (e) {
+    $(_this3.closeButton).click(function (e) {
       thisObject.callThenDestroy();
     });
 
