@@ -1,6 +1,6 @@
 {
   "name": "parambox",
-  "version": "1.2.10",
+  "version": "1.2.11",
   "description": "Too much parameters to handle ? paramBox is a collection of smart plug and play tools to facilitate the design of javascript projects such as games and cognitive tasks. ParamBox is one of the helper class and allows to modify key variable on the fly without having to modify the code or reload the page.",
   "main": "lib/paramBox-transpiled-0.2.js",
   "repository": {
