@@ -101,7 +101,7 @@ var DragBox = function () {
     // check if the box already exists, else create it
     if (!this.boxElement) {
       // get a unique ID for the box
-      this.boxId = "dragbox" + ($("." + this._boxClass).length + 1);
+      this.boxId = "dragbox" + ($('div[id*="dragbox"]').length + 1);
 
       // html for creation
       this.boxHTML = '<div id="' + this.boxId + '" class="' + this._boxClass + '" style="opacity:0.0;" draggable="true">' + '<div class="col-xs-12 dragbox-container"><div class="col-xs-12 dragbox-title"><center><h3>Dragbox</h3></center></div>' + '<div class="col-xs-12 dragbox-content"></div><div class="col-xs-12 dragbox-footer"></div></div>' + '</div>';
@@ -1148,6 +1148,11 @@ var SmartChart = function (_SmartModal) {
     var canvasID = "chart-canvas" + ($("canvas").length + 1);
     _this3.content = '<canvas id="' + canvasID + '" class="chart-canvas"></canvas>';
     _this3.canvas = document.getElementById(canvasID);
+
+    if (typeof options.options.title.text !== "undefined") {
+      options.options.title.display = false;
+      _this3.title = '<center><h5>' + options.options.title.text + '</h5></center>';
+    }
 
     // Create chart
     try {
