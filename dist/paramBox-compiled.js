@@ -55,7 +55,7 @@ var DragBox = function () {
     this.MAX_BINDED_PROPERTIES = 15;
     this.INIT_WIDTH = width ? width : 400;
     this.INIT_HEIGHT = height ? height : 300;
-    this.DEFAULT_BOX_CLASS = "dragbox";
+    this.DEFAULT_BOX_THEME = "dragbox-gray";
     this.DEFAULT_DRAGGABLE = true;
     this.DEFAULT_STICKINESS_TYPE = "magnetized";
 
@@ -77,7 +77,7 @@ var DragBox = function () {
     this._beingDragged = false;
     this._visibility = "hidden";
     this._overflow = "hidden";
-    this._boxClass = this.DEFAULT_BOX_CLASS;
+    this._boxClass = this.DEFAULT_BOX_THEME;
     this._width = this.INIT_WIDTH;
     this._height = this.INIT_HEIGHT;
 
@@ -104,7 +104,7 @@ var DragBox = function () {
       this.boxId = "dragbox" + ($('div[id*="dragbox"]').length + 1);
 
       // html for creation
-      this.boxHTML = '<div id="' + this.boxId + '" class="' + this._boxClass + '" style="opacity:0.0;" draggable="false">' + '<div class="col-xs-12 dragbox-container"><div class="col-xs-12 dragbox-title"><center><h3>Dragbox</h3></center></div>' + '<div class="col-xs-12 dragbox-content"></div><div class="col-xs-12 dragbox-footer"></div></div>' + '</div>';
+      this.boxHTML = '<div id="' + this.boxId + '" class="dragbox ' + this._boxClass + '" style="opacity:0.0;" draggable="false">' + '<div class="col-xs-12 dragbox-container"><div class="col-xs-12 dragbox-title"><center><h3>Dragbox</h3></center></div>' + '<div class="col-xs-12 dragbox-content"></div><div class="col-xs-12 dragbox-footer"></div></div>' + '</div>';
 
       $(document.body).append(this.boxHTML);
       this.boxElement = $("#" + this.boxId);
@@ -459,10 +459,10 @@ var DragBox = function () {
         }
 
         // if there is more than one class in the string take the first one
-        var spacePos = newClass.indexOf(" ");
-        if (spacePos != -1) {
-          newClass = newClass.substr(0, spacePos);
-        }
+        // var spacePos = newClass.indexOf(" ");
+        // if (spacePos != -1) {
+        //   newClass = newClass.substr(0, spacePos);
+        // }
 
         // remove the old class from the boxElement and add the new class
         this.boxElement.removeClass(this.boxClass).addClass(newClass);

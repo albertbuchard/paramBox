@@ -1,4 +1,4 @@
-  .dragbox {
+  .dragbox-gray {
     z-index:10;
     position: absolute;
     top: 0px;
@@ -21,14 +21,14 @@
   }
 
 
-.dragbox 
+.dragbox-gray
 div 
 h1 {
 	color: #F8F8F5;;
 
 }
 
-.dragbox div {
+.dragbox-gray div {
 	color: #F8F8F5;
 }
 
