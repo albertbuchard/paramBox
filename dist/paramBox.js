@@ -754,7 +754,7 @@ class ParamBox extends DragBox {
       var objectTemp = objectHierarchy[0];
       var property = objectHierarchy[1];
 
-      var underscoredHierarchy = properties[i].replace(".", "_");
+      var underscoredHierarchy = properties[i].replace(/\./g, "_");
 
       var rowDom = this.newRowInDom();
       var bindedField = null;
@@ -1169,8 +1169,8 @@ class BindedProperty {
     this.type = null;
 
     // export value as hierarchy if set, else set as property name
-    this.hierarchy = (hierarchy !== null) ? hierarchy.replace(".", "_") : property;
-    this.exportName = this.hierarchy.replace(".", "_");
+    this.hierarchy = (hierarchy !== null) ? hierarchy : property;
+    this.exportName = this.hierarchy.replace(/\./g, "_");
 
     if (!this.object) {
       // if parent object is not set consider that the binding is with a variable in the global scope
