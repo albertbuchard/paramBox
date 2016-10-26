@@ -1044,7 +1044,7 @@ class SmartChart extends SmartModal {
     }
 
     this.canvas.style.background = "white";
-    this.boxClass = "dragbox-white-boxshadow";
+    this.boxClass = "dragbox dragbox-white-boxshadow";
 
     // setup footer and buttons 
     this.DEFAULT_BUTTON_ROW_HTML = '<div class="col-xs-12 dragbox-row smartchart-buttonrow"><div class="col-xs-10"></div></div>';

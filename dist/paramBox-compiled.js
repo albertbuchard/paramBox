@@ -1171,7 +1171,7 @@ var SmartChart = function (_SmartModal) {
     }
 
     _this3.canvas.style.background = "white";
-    _this3.boxClass = "dragbox-white-boxshadow";
+    _this3.boxClass = "dragbox dragbox-white-boxshadow";
 
     // setup footer and buttons
     _this3.DEFAULT_BUTTON_ROW_HTML = '<div class="col-xs-12 dragbox-row smartchart-buttonrow"><div class="col-xs-10"></div></div>';
