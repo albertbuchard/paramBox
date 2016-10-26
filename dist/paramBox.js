@@ -85,7 +85,7 @@ class DragBox {
         this.boxId = "dragbox" + ($('div[id*="dragbox"]').length + 1);
 
         // html for creation
-        this.boxHTML = '<div id="' + this.boxId + '" class="' + this._boxClass + '" style="opacity:0.0;" draggable="true">' +
+        this.boxHTML = '<div id="' + this.boxId + '" class="' + this._boxClass + '" style="opacity:0.0;" draggable="false">' +
           '<div class="col-xs-12 dragbox-container"><div class="col-xs-12 dragbox-title"><center><h3>Dragbox</h3></center></div>' +
           '<div class="col-xs-12 dragbox-content"></div><div class="col-xs-12 dragbox-footer"></div></div>' +
           '</div>';
@@ -112,6 +112,12 @@ class DragBox {
       });
       $(document.body).keyup(function (e) {
         thisObject.keyfunction(e);
+      });
+
+      // when clicked bring  dragbox 
+      $(this.boxElement).click(e => {
+        $(".dragbox").css("zIndex", 10);
+        $(thisObject.boxElement).css("zIndex", 100);
       });
 
       $(this.boxElement).find(".dragbox-title").mousedown(function (e) {
@@ -748,13 +754,15 @@ class ParamBox extends DragBox {
       var objectTemp = objectHierarchy[0];
       var property = objectHierarchy[1];
 
+      var underscoredHierarchy = properties[i].replace(".", "_");
+
       var rowDom = this.newRowInDom();
       var bindedField = null;
 
       /* --- look for a value in the query string for this property --- */
       var initialValue = null;
-      if (typeof this.queryString[property] !== "undefined") {
-        initialValue = this.queryString[property];
+      if (typeof this.queryString[underscoredHierarchy] !== "undefined") {
+        initialValue = this.queryString[underscoredHierarchy];
       }
 
       // look for a constrained field
@@ -770,7 +778,7 @@ class ParamBox extends DragBox {
             objectTemp[property] = objectTemp[property].constructor(initialValue);
           }
 
-          var bindedField = new BindedField(objectTemp, property, rowDom, 'selector', constraintValues);
+          var bindedField = new BindedField(objectTemp, property, rowDom, 'selector', constraintValues, properties[i]);
         }
       }
 
@@ -781,9 +789,9 @@ class ParamBox extends DragBox {
         }
 
         if (objectTemp[property].constructor === Boolean) {
-          var bindedField = new BindedField(objectTemp, property, rowDom, 'selector', ["TRUE", "FALSE"], initialValue);
+          var bindedField = new BindedField(objectTemp, property, rowDom, 'selector', ["TRUE", "FALSE"], properties[i]);
         } else {
-          var bindedField = new BindedField(objectTemp, property, rowDom, 'input', null, initialValue);
+          var bindedField = new BindedField(objectTemp, property, rowDom, 'input', null, properties[i]);
         }
       }
 
@@ -807,10 +815,7 @@ class ParamBox extends DragBox {
     this.refreshView();
   }
 
-  // ui methods
-  addExportButton() {
-
-  }
+  // ui methods 
 
   newRowInDom() {
     var row = null;
@@ -875,7 +880,9 @@ class ParamBox extends DragBox {
       var bindedField = this.rows[i].bindedField;
       summaryArray.push({
         property: bindedField.property,
-        value: bindedField.value
+        value: bindedField.value,
+        hierarchy: bindedField.hierarchy,
+        exportName: bindedField.exportName
       });
     }
 
@@ -936,7 +943,7 @@ class ParamBox extends DragBox {
       if (str !== "") {
         str += "&";
       }
-      str += summaryArray[i].property + "=" + encodeURIComponent(summaryArray[i].value);
+      str += summaryArray[i].exportName + "=" + encodeURIComponent(summaryArray[i].value);
     }
 
     /* --- Append the parameters and reload the page --- */
@@ -1151,7 +1158,7 @@ class SmartChart extends SmartModal {
 // }
 
 class BindedProperty {
-  constructor(object = null, property = null) {
+  constructor(object = null, property = null, hierarchy = null) {
     // constants
     this.HANDLED_VARIABLE_TYPES = ["number", "string", "boolean"];
 
@@ -1160,6 +1167,10 @@ class BindedProperty {
     this.object = object;
     this.propagate = false; // to add ? chain propagation? a subscription system maybe...
     this.type = null;
+
+    // export value as hierarchy if set, else set as property name
+    this.hierarchy = (hierarchy !== null) ? hierarchy.replace(".", "_") : property;
+    this.exportName = this.hierarchy.replace(".", "_");
 
     if (!this.object) {
       // if parent object is not set consider that the binding is with a variable in the global scope
@@ -1248,9 +1259,10 @@ class BindedField extends BindedProperty {
     property = mandatory("property"),
     parent = null,
     fieldType = 'input',
-    allowedValues = null) {
+    allowedValues = null,
+    hierarchy = null) {
 
-    super(object, property);
+    super(object, property, hierarchy);
 
     // constant
     this.VALID_FIELD_TYPE = ["input", "selector", "slider"];

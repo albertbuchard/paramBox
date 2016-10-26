@@ -25,6 +25,9 @@
                 textForSelected: "is currently selected",
                 selectedHeight: 400,
                 sizeForNonSelected: 100,
+                nestedObject: {
+                    usefullField: "Very interesting nest object field value"
+                },
                 allColors: ["red", "blue", "yellow", "green"],
                 update: function () {
                     var listDivs = document.getElementsByClassName("coloredDiv");
@@ -36,12 +39,12 @@
 
                     var selectedDiv = document.getElementsByClassName(this.selectedColor)[0];
                     selectedDiv.style.height = this.selectedHeight+"px";
-                    selectedDiv.innerHTML = "<center>"+ this.selectedColor + " " +this.textForSelected+"</center>";
+                    selectedDiv.innerHTML = "<center>"+ this.selectedColor.toUpperCase() + " " +this.textForSelected+"</center><br/>"+this.nestedObject.usefullField;
                 }
             };
 
             /* list of tweakable variables from the paramBox */
-            var parametersNames = ["selectedColor", "textForSelected", "selectedHeight"];
+            var parametersNames = ["selectedColor", "textForSelected", "selectedHeight", "nestedObject.usefullField"];
 
             var parametersConstraints = {
               selectedColor: ["red",
@@ -66,6 +69,11 @@
     </head>
     <body>
         <div class="container">
+            <br/>
+            <br/>
+            To open the paramBox hit shift + P
+            <br/>
+            <br/>
             <div class="coloredDiv red col-xs-12" style="background:red; color:white;">
             </div>
             <div class="coloredDiv blue col-xs-12" style="background:blue; color:white;">

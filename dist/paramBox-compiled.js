@@ -104,7 +104,7 @@ var DragBox = function () {
       this.boxId = "dragbox" + ($('div[id*="dragbox"]').length + 1);
 
       // html for creation
-      this.boxHTML = '<div id="' + this.boxId + '" class="' + this._boxClass + '" style="opacity:0.0;" draggable="true">' + '<div class="col-xs-12 dragbox-container"><div class="col-xs-12 dragbox-title"><center><h3>Dragbox</h3></center></div>' + '<div class="col-xs-12 dragbox-content"></div><div class="col-xs-12 dragbox-footer"></div></div>' + '</div>';
+      this.boxHTML = '<div id="' + this.boxId + '" class="' + this._boxClass + '" style="opacity:0.0;" draggable="false">' + '<div class="col-xs-12 dragbox-container"><div class="col-xs-12 dragbox-title"><center><h3>Dragbox</h3></center></div>' + '<div class="col-xs-12 dragbox-content"></div><div class="col-xs-12 dragbox-footer"></div></div>' + '</div>';
 
       $(document.body).append(this.boxHTML);
       this.boxElement = $("#" + this.boxId);
@@ -128,6 +128,12 @@ var DragBox = function () {
     });
     $(document.body).keyup(function (e) {
       thisObject.keyfunction(e);
+    });
+
+    // when clicked bring  dragbox
+    $(this.boxElement).click(function (e) {
+      $(".dragbox").css("zIndex", 10);
+      $(thisObject.boxElement).css("zIndex", 100);
     });
 
     $(this.boxElement).find(".dragbox-title").mousedown(function (e) {
@@ -849,13 +855,15 @@ var ParamBox = function (_DragBox2) {
         var objectTemp = objectHierarchy[0];
         var property = objectHierarchy[1];
 
+        var underscoredHierarchy = properties[i].replace(".", "_");
+
         var rowDom = this.newRowInDom();
         var bindedField = null;
 
         /* --- look for a value in the query string for this property --- */
         var initialValue = null;
-        if (typeof this.queryString[property] !== "undefined") {
-          initialValue = this.queryString[property];
+        if (typeof this.queryString[underscoredHierarchy] !== "undefined") {
+          initialValue = this.queryString[underscoredHierarchy];
         }
 
         // look for a constrained field
@@ -871,7 +879,7 @@ var ParamBox = function (_DragBox2) {
               objectTemp[property] = objectTemp[property].constructor(initialValue);
             }
 
-            var bindedField = new BindedField(objectTemp, property, rowDom, 'selector', constraintValues);
+            var bindedField = new BindedField(objectTemp, property, rowDom, 'selector', constraintValues, properties[i]);
           }
         }
 
@@ -882,9 +890,9 @@ var ParamBox = function (_DragBox2) {
           }
 
           if (objectTemp[property].constructor === Boolean) {
-            var bindedField = new BindedField(objectTemp, property, rowDom, 'selector', ["TRUE", "FALSE"], initialValue);
+            var bindedField = new BindedField(objectTemp, property, rowDom, 'selector', ["TRUE", "FALSE"], properties[i]);
           } else {
-            var bindedField = new BindedField(objectTemp, property, rowDom, 'input', null, initialValue);
+            var bindedField = new BindedField(objectTemp, property, rowDom, 'input', null, properties[i]);
           }
         }
 
@@ -910,9 +918,6 @@ var ParamBox = function (_DragBox2) {
 
     // ui methods
 
-  }, {
-    key: "addExportButton",
-    value: function addExportButton() {}
   }, {
     key: "newRowInDom",
     value: function newRowInDom() {
@@ -982,7 +987,9 @@ var ParamBox = function (_DragBox2) {
         var bindedField = this.rows[i].bindedField;
         summaryArray.push({
           property: bindedField.property,
-          value: bindedField.value
+          value: bindedField.value,
+          hierarchy: bindedField.hierarchy,
+          exportName: bindedField.exportName
         });
       }
 
@@ -1045,7 +1052,7 @@ var ParamBox = function (_DragBox2) {
         if (str !== "") {
           str += "&";
         }
-        str += summaryArray[i].property + "=" + encodeURIComponent(summaryArray[i].value);
+        str += summaryArray[i].exportName + "=" + encodeURIComponent(summaryArray[i].value);
       }
 
       /* --- Append the parameters and reload the page --- */
@@ -1289,6 +1296,7 @@ var BindedProperty = function () {
   function BindedProperty() {
     var object = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
     var property = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+    var hierarchy = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
 
     _classCallCheck(this, BindedProperty);
 
@@ -1300,6 +1308,10 @@ var BindedProperty = function () {
     this.object = object;
     this.propagate = false; // to add ? chain propagation? a subscription system maybe...
     this.type = null;
+
+    // export value as hierarchy if set, else set as property name
+    this.hierarchy = hierarchy !== null ? hierarchy.replace(".", "_") : property;
+    this.exportName = this.hierarchy.replace(".", "_");
 
     if (!this.object) {
       // if parent object is not set consider that the binding is with a variable in the global scope
@@ -1399,12 +1411,13 @@ var BindedField = function (_BindedProperty) {
     var parent = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
     var fieldType = arguments.length <= 3 || arguments[3] === undefined ? 'input' : arguments[3];
     var allowedValues = arguments.length <= 4 || arguments[4] === undefined ? null : arguments[4];
+    var hierarchy = arguments.length <= 5 || arguments[5] === undefined ? null : arguments[5];
 
     _classCallCheck(this, BindedField);
 
     // constant
 
-    var _this4 = _possibleConstructorReturn(this, Object.getPrototypeOf(BindedField).call(this, object, property));
+    var _this4 = _possibleConstructorReturn(this, Object.getPrototypeOf(BindedField).call(this, object, property, hierarchy));
 
     _this4.VALID_FIELD_TYPE = ["input", "selector", "slider"];
 
