@@ -52,11 +52,11 @@
       max-width: 100%;
       margin-bottom: 15px;
       font-weight: 700;
-      font-size: 20pt;
+      font-size: 15pt;
       font-variant: small-caps;
       text-decoration: underline;
       cursor: pointer;
-      color: white;
+      color: #c1c1c1;
   }
   
   .smartmodal-sendbutton, .smartmodal-closebutton, .smartmodal-nextbutton, .smartmodal-blankbutton, .parambox-savebutton, .parambox-reloadbutton, .parambox-importbutton {
