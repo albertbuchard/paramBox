@@ -26,7 +26,9 @@
                 selectedHeight: 400,
                 sizeForNonSelected: 100,
                 nestedObject: {
-                    usefullField: "Very interesting nest object field value"
+                    usefullField: "Very interesting nest object field value",
+                    anotherOne: "Indeed!",
+                    thisOneIsTheBoss: "What's the Yams?!"
                 },
                 allColors: ["red", "blue", "yellow", "green"],
                 update: function () {
@@ -44,7 +46,8 @@
             };
 
             /* list of tweakable variables from the paramBox */
-            var parametersNames = ["selectedColor", "textForSelected", "selectedHeight", "nestedObject.usefullField"];
+            var parametersNames = ["selectedColor", "textForSelected", "selectedHeight"
+            , "nestedObject.usefullField", "nestedObject.anotherOne", "nestedObject.thisOneIsTheBoss"];
 
             var parametersConstraints = {
               selectedColor: ["red",

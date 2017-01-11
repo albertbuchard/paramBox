@@ -17,7 +17,7 @@
 var scripts = document.getElementsByTagName("script");
 var paramBoxFullpath = scripts[scripts.length - 1].src;
 var delimiterIndices = findAllIndices("/", paramBoxFullpath);
-paramBoxFullpath = paramBoxFullpath.substr(0, delimiterIndices[delimiterIndices.length - 2]);
+paramBoxFullpath = paramBoxFullpath.substr(0, delimiterIndices[delimiterIndices.length - 1]);
 
 /* === Add the paramBox css once the page is loaded === */
 document.addEventListener("DOMContentLoaded", function (event) {
@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
   var link = document.createElement('link');
   link.rel = 'stylesheet';
   link.type = 'text/css';
-  link.href = paramBoxFullpath + '/dist/paramBox.css';
+  link.href = paramBoxFullpath + '/paramBox.css';
   head.appendChild(link);
 });
 
@@ -36,6 +36,8 @@ class DragBox {
       this.MAX_BINDED_PROPERTIES = 15;
       this.INIT_WIDTH = (width) ? width : 400;
       this.INIT_HEIGHT = (height) ? height : 300;
+      this.TITLE_HEIGHT = 36;
+      this.FOOTER_HEIGHT = 34;
       this.DEFAULT_BOX_THEME = "dragbox-gray";
       this.DEFAULT_DRAGGABLE = true;
       this.DEFAULT_STICKINESS_TYPE = "magnetized";
@@ -85,7 +87,7 @@ class DragBox {
         this.boxId = "dragbox" + ($('div[id*="dragbox"]').length + 1);
 
         // html for creation
-        this.boxHTML = '<div id="' + this.boxId + '" class="dragbox ' + this._boxClass + '" style="opacity:0.0;" draggable="false">' +
+        this.boxHTML = '<div id="' + this.boxId + '" class="dragbox ' + this._boxClass + '" style="display:none;" draggable="false">' +
           '<div class="col-xs-12 dragbox-container"><div class="col-xs-12 dragbox-title"><center><h3>Dragbox</h3></center></div>' +
           '<div class="col-xs-12 dragbox-content"></div><div class="col-xs-12 dragbox-footer"></div></div>' +
           '</div>';
@@ -153,9 +155,8 @@ class DragBox {
     $(this.boxElement).width(this.width);
     $(this.boxElement).height(this.height);
 
-    var contentHeight = this.height -
-      $(this.boxElement).find(".dragbox-title").height() -
-      $(this.boxElement).find(".dragbox-footer").height() - 7;
+    var contentHeight = this.height - this.TITLE_HEIGHT -
+      this.FOOTER_HEIGHT - 7;
 
     var thisObject = this;
     $(this.boxElement).animate({
@@ -399,13 +400,15 @@ class DragBox {
   set visibility(visibility) {
     this._visibility = visibility;
     if (visibility == "visible") {
-      $(this.boxElement).animate({
-        opacity: 1.0
-      }, 150);
+      // $(this.boxElement).animate({
+      //   opacity: 1.0
+      // }, 150); 
+      $(this.boxElement).hide();
     } else {
-      $(this.boxElement).animate({
-        opacity: 0.0
-      }, 150);
+      // $(this.boxElement).animate({
+      //   opacity: 0.0
+      // }, 150);
+      $(this.boxElement).show();
     }
 
   }
@@ -682,6 +685,8 @@ class ParamBox extends DragBox {
     // constants
     this.DEFAULT_ROW_HTML = '<div class="col-md-12 dragbox-row paramboxtmprow"></div>';
 
+    this.PARAMBOX_EMPTY_SUBTITLE_ROW_HTML = '<div class="col-md-12 dragbox-row paramboxtmprow"><a class="parambox-subtitle">Subtitle</a></div>';
+
     this.PARAMBOX_EMPTY_ROW_HTML = '<div class="col-md-12 dragbox-row parambox-empty"><center>No parameters binded.</center></div>';
 
     this.DEFAULT_BUTTON_ROW_HTML = '<div class="col-xs-12 dragbox-row parambox-buttonrow"></div>';
@@ -708,11 +713,19 @@ class ParamBox extends DragBox {
       thisObject.reloadAndImport(e);
     });
 
+    $(document).on('click', '.parambox-subtitle', function () {
+      var id = $(this).attr("subtitle-id");
+      $("[parambox-belong-to='" + id + "']").slideToggle(250);
+    });
+
     // ui
     this.rowHtml = this.DEFAULT_ROW_HTML;
+    this.subtitleHtml = this.PARAMBOX_EMPTY_SUBTITLE_ROW_HTML;
 
     // row hold the row object in dom as well as the bindedField object {rowDom: row, bindedField: bindedField}
     this.rows = [];
+
+    this.subtitleRows = {};
 
     // set dragbox title
     this.title = '<h5><i class="fa fa-cog fa-1x"></i> Parameter Box</h5>';
@@ -755,8 +768,9 @@ class ParamBox extends DragBox {
       var property = objectHierarchy[1];
 
       var underscoredHierarchy = properties[i].replace(/\./g, "_");
+      var subtitle = properties[i].substring(0, properties[i].lastIndexOf("."));
 
-      var rowDom = this.newRowInDom();
+      var rowDom = this.newRowInDom(subtitle);
       var bindedField = null;
 
       /* --- look for a value in the query string for this property --- */
@@ -817,11 +831,25 @@ class ParamBox extends DragBox {
 
   // ui methods 
 
-  newRowInDom() {
+  newRowInDom(subtitle = "") {
+    if (subtitle !== "") {
+      if (!(subtitle in this.subtitleRows)) {
+        var subtitleRow = null;
+        $(this.boxElement).find(".dragbox-content").append(this.subtitleHtml);
+        subtitleRow = this.boxElement.find(".paramboxtmprow");
+        $(subtitleRow)
+          .removeClass("paramboxtmprow")
+          .find("a")
+          .attr("subtitle-id", subtitle)
+          .text(subtitle);
+        this.subtitleRows[subtitle] = $(subtitleRow);
+      }
+    }
+
     var row = null;
     $(this.boxElement).find(".dragbox-content").append(this.rowHtml);
     row = this.boxElement.find(".paramboxtmprow");
-    $(row).removeClass("paramboxtmprow");
+    $(row).removeClass("paramboxtmprow").attr("parambox-belong-to", subtitle);
 
     return row;
   }
