@@ -3,12 +3,12 @@
  * Created. 2016
  *
  * Plug and play tools for easy development in js. Part of the experiment.js toolbox.
- * 
- * Authors. Albert Buchard 
+ *
+ * Authors. Albert Buchard
  *
  * Requires: bootstrap and jQuery
- * 
- * LICENSE MIT 
+ *
+ * LICENSE MIT
  */
 
 /* =============== Set-up =============== */
@@ -17,137 +17,140 @@
 var scripts = document.getElementsByTagName("script");
 var paramBoxFullpath = scripts[scripts.length - 1].src;
 var delimiterIndices = findAllIndices("/", paramBoxFullpath);
-paramBoxFullpath = paramBoxFullpath.substr(0, delimiterIndices[delimiterIndices.length - 1]);
+paramBoxFullpath = paramBoxFullpath.substr(
+  0,
+  delimiterIndices[delimiterIndices.length - 1]
+);
 
 /* === Add the paramBox css once the page is loaded === */
 document.addEventListener("DOMContentLoaded", function (event) {
-  var head = document.getElementsByTagName('head')[0];
-  var link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.type = 'text/css';
-  link.href = paramBoxFullpath + '/paramBox.css';
+  var head = document.getElementsByTagName("head")[0];
+  var link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.type = "text/css";
+  link.href = paramBoxFullpath + "/paramBox.css";
   head.appendChild(link);
 });
 
 /** Dragable div - Parent class suporting the toolbox  */
 class DragBox {
   constructor(boxElement = null, width = null, height = null) {
-      // constants
-      this.MAX_BINDED_PROPERTIES = 15;
-      this.INIT_WIDTH = (width) ? width : 400;
-      this.INIT_HEIGHT = (height) ? height : 300;
-      this.TITLE_HEIGHT = 36;
-      this.FOOTER_HEIGHT = 34;
-      this.DEFAULT_BOX_THEME = "dragbox-gray";
-      this.DEFAULT_DRAGGABLE = true;
-      this.DEFAULT_STICKINESS_TYPE = "magnetized";
+    // constants
+    this.MAX_BINDED_PROPERTIES = 15;
+    this.INIT_WIDTH = width ? width : 400;
+    this.INIT_HEIGHT = height ? height : 300;
+    this.TITLE_HEIGHT = 36;
+    this.FOOTER_HEIGHT = 34;
+    this.DEFAULT_BOX_THEME = "dragbox-gray";
+    this.DEFAULT_DRAGGABLE = true;
+    this.DEFAULT_STICKINESS_TYPE = "magnetized";
 
-      // ui variables
-      this.boxId = null;
-      this.boxElement = boxElement;
-      this.draggable = this.DEFAULT_DRAGGABLE;
-      this.boxHTML = null;
+    // ui variables
+    this.boxId = null;
+    this.boxElement = boxElement;
+    this.draggable = this.DEFAULT_DRAGGABLE;
+    this.boxHTML = null;
 
-      // stickness
-      this.shouldStick = null;
-      this.shouldMagnetize = null;
-      this.isStickingX = null;
-      this.isStickingY = null;
+    // stickness
+    this.shouldStick = null;
+    this.shouldMagnetize = null;
+    this.isStickingX = null;
+    this.isStickingY = null;
 
-      this.stickiness = this.DEFAULT_STICKINESS_TYPE;
+    this.stickiness = this.DEFAULT_STICKINESS_TYPE;
 
-      // private
-      this._beingDragged = false;
-      this._visibility = "hidden";
-      this._overflow = "hidden";
-      this._boxClass = this.DEFAULT_BOX_THEME;
-      this._width = this.INIT_WIDTH;
-      this._height = this.INIT_HEIGHT;
+    // private
+    this._beingDragged = false;
+    this._visibility = "hidden";
+    this._overflow = "hidden";
+    this._boxClass = this.DEFAULT_BOX_THEME;
+    this._width = this.INIT_WIDTH;
+    this._height = this.INIT_HEIGHT;
 
-      // keyboard variables
-      // maps the keys pressed with either true on kedown or false on keyup
-      this.map = [];
+    // keyboard variables
+    // maps the keys pressed with either true on kedown or false on keyup
+    this.map = [];
 
-      // keep mouse position at all times
-      this.currentMousePos = {
-        x: -1,
-        y: -1
-      };
+    // keep mouse position at all times
+    this.currentMousePos = {
+      x: -1,
+      y: -1
+    };
 
-      var thisObject = this;
+    var thisObject = this;
 
-      $(document).mousemove(function (event) {
-        thisObject.currentMousePos.x = event.pageX;
-        thisObject.currentMousePos.y = event.pageY;
-      });
+    $(document).mousemove(function (event) {
+      thisObject.currentMousePos.x = event.pageX;
+      thisObject.currentMousePos.y = event.pageY;
+    });
 
-      // check if the box already exists, else create it
-      if (!this.boxElement) {
-        // get a unique ID for the box
-        this.boxId = "dragbox" + ($('div[id*="dragbox"]').length + 1);
+    // check if the box already exists, else create it
+    if (!this.boxElement) {
+      // get a unique ID for the box
+      this.boxId = "dragbox" + ($("div[id*=\"dragbox\"]").length + 1);
 
-        // html for creation
-        this.boxHTML = '<div id="' + this.boxId + '" class="dragbox ' + this._boxClass + '" style="display:none;" draggable="false">' +
-          '<div class="col-xs-12 dragbox-container"><div class="col-xs-12 dragbox-title"><center><h3>Dragbox</h3></center></div>' +
-          '<div class="col-xs-12 dragbox-content"></div><div class="col-xs-12 dragbox-footer"></div></div>' +
-          '</div>';
+      // html for creation
+      this.boxHTML = "<div id=\"" + this.boxId + "\" class=\"dragbox " +
+        this._boxClass +
+        "\" style=\"display:none;\" draggable=\"false\">" +
+        "<div class=\"col-xs-12 dragbox-container\"><div class=\"col-xs-12 dragbox-title\"><center><h3>Dragbox</h3></center></div>" +
+        "<div class=\"col-xs-12 dragbox-content\"></div><div class=\"col-xs-12 dragbox-footer\"></div></div>" +
+        "</div>";
 
-        $(document.body).append(this.boxHTML);
-        this.boxElement = $("#" + this.boxId);
-      } else {
-        this.boxId = $(this.boxElement).attr("id");
-      }
-
-      // set class
-      this.boxClass = $(this.boxElement).attr('class');
-
-      //set size
-      this.width = this._width;
-      this.height = this._height;
-
-      // set overflow
-      this.overflow = "hidden";
-
-      // keyboard show hide hotkeys events
-      $(document.body).keydown(function (e) {
-        thisObject.keyfunction(e);
-      });
-      $(document.body).keyup(function (e) {
-        thisObject.keyfunction(e);
-      });
-
-      // when clicked bring  dragbox 
-      $(this.boxElement).click(e => {
-        $(".dragbox").css("zIndex", 10);
-        $(thisObject.boxElement).css("zIndex", 100);
-      });
-
-      $(this.boxElement).find(".dragbox-title").mousedown(function (e) {
-        thisObject.startDrag(e);
-      });
-      $(this.boxElement).find(".dragbox-title").mouseup(function (e) {
-        thisObject.stopDrag(e);
-      });
-
-      // draggin cleanUp event
-      $(document).click(function (e) {
-        thisObject.stopDrag(e);
-      });
-
-      /* --- Load the query string if reload and import was used --- */
-      this.queryString = this.getQueryString();
-
+      $(document.body).append(this.boxHTML);
+      this.boxElement = $("#" + this.boxId);
+    } else {
+      this.boxId = $(this.boxElement).attr("id");
     }
-    // destroy
+
+    // set class
+    this.boxClass = $(this.boxElement).attr("class");
+
+    //set size
+    this.width = this._width;
+    this.height = this._height;
+
+    // set overflow
+    this.overflow = "hidden";
+
+    // keyboard show hide hotkeys events
+    $(document.body).keydown(function (e) {
+      thisObject.keyfunction(e);
+    });
+    $(document.body).keyup(function (e) {
+      thisObject.keyfunction(e);
+    });
+
+    // when clicked bring  dragbox
+    $(this.boxElement).click(e => {
+      $(".dragbox").css("zIndex", 10);
+      $(thisObject.boxElement).css("zIndex", 100);
+    });
+
+    $(this.boxElement).find(".dragbox-title").mousedown(function (e) {
+      thisObject.startDrag(e);
+    });
+    $(this.boxElement).find(".dragbox-title").mouseup(function (e) {
+      thisObject.stopDrag(e);
+    });
+
+    // draggin cleanUp event
+    $(document).click(function (e) {
+      thisObject.stopDrag(e);
+    });
+
+    /* --- Load the query string if reload and import was used --- */
+    this.queryString = this.getQueryString();
+  }
+  // destroy
   destroy() {
     // fade out and remove from DOM
     var thisObject = this;
     $(this.boxElement).animate({
-      opacity: 0.0
+      opacity: 0
     }, 25, function () {
       $(thisObject.boxElement).remove();
     });
-
   }
 
   // size methods
@@ -155,20 +158,27 @@ class DragBox {
     $(this.boxElement).width(this.width);
     $(this.boxElement).height(this.height);
 
-    var contentHeight = this.height - this.TITLE_HEIGHT -
-      this.FOOTER_HEIGHT - 7;
+    var contentHeight = this.height - this.TITLE_HEIGHT - this.FOOTER_HEIGHT -
+      7;
 
     var thisObject = this;
     $(this.boxElement).animate({
-      height: thisObject.height,
-      width: thisObject.width
-    }, 25, function () {});
-    $(this.boxElement).find(".dragbox-container").animate({
-      height: thisObject.height
-    }, 25, function () {});
-    $(this.boxElement).find(".dragbox-content").animate({
-      height: contentHeight
-    }, 25, function () {});
+        height: thisObject.height,
+        width: thisObject.width
+      },
+      25,
+      function () {}
+    );
+    $(this.boxElement)
+      .find(".dragbox-container")
+      .animate({
+        height: thisObject.height
+      }, 25, function () {});
+    $(this.boxElement)
+      .find(".dragbox-content")
+      .animate({
+        height: contentHeight
+      }, 25, function () {});
   }
 
   // drag methods
@@ -227,12 +237,14 @@ class DragBox {
       // glue
       if (this.shouldStick) {
         //make the box sticky if collided with x border
-        if ((constrainedPosition.stickyX == -2) || (constrainedPosition.stickyX == 2)) {
+        if (
+          constrainedPosition.stickyX == -2 || constrainedPosition.stickyX == 2
+        ) {
           this.isStickingX = true;
         }
 
         // for sticky window, check if the box got out of the sticky x aera before authorizing movement in x
-        if ((this.isStickingX) && (constrainedPosition.stickyX !== 0)) {
+        if (this.isStickingX && constrainedPosition.stickyX !== 0) {
           constrainedPositionX = constrainedPosition.leftSticky; //stick to the window
         }
 
@@ -242,12 +254,14 @@ class DragBox {
         }
 
         // make the box sticky if collided with y border
-        if ((constrainedPosition.stickyY == -2) || (constrainedPosition.stickyY == 2)) {
+        if (
+          constrainedPosition.stickyY == -2 || constrainedPosition.stickyY == 2
+        ) {
           this.isStickingY = true;
         }
 
         // for sticky window, check if the box got out of the sticky y aera before authorizing movement in y
-        if ((this.isStickingY) && (constrainedPosition.stickyY !== 0)) {
+        if (this.isStickingY && constrainedPosition.stickyY !== 0) {
           constrainedPositionY = constrainedPosition.topSticky; //stick to the window
         }
 
@@ -264,7 +278,9 @@ class DragBox {
       }
 
       var thisObject = this;
-      $(this.boxElement).animate({
+      $(
+        this.boxElement
+      ).animate({
         left: constrainedPositionX,
         top: constrainedPositionY
       }, 25, function () {
@@ -278,7 +294,6 @@ class DragBox {
   keyfunction(e) {
     // check if shift + P hotkeys were stroke and toggle visibility if so
     console.log("keyEvent dragbox method");
-
   }
 
   // visibility functions
@@ -300,9 +315,8 @@ class DragBox {
   }
 
   // content function
-
   /**
-   * Add the specified html code to the specified target. 
+   * Add the specified html code to the specified target.
    * If wrapInDivClass is set, a div of specified class is created around the html code. This could be usefull to set grid class like 'col-xs-12'.
    * @param  {string} html           html to append to the target
    * @param  {String} to             target identifier eg .target-class or #targetID
@@ -312,7 +326,7 @@ class DragBox {
     // append html to the selected child element of the dragbox
     if (this.boxElement) {
       if (wrapInDivClass !== null) {
-        html = '<div class="' + wrapInDivClass + '" >' + html + "</div>";
+        html = "<div class=\"" + wrapInDivClass + "\" >" + html + "</div>";
       }
 
       if (to != "container") {
@@ -320,7 +334,6 @@ class DragBox {
       } else {
         this.boxElement.append(html);
       }
-
     }
   }
 
@@ -328,30 +341,31 @@ class DragBox {
    * set or get html of the selected child element of the DragBox
    * @param  {String} child child selector
    * @param  {?string} value Either null if you want to get the html or a string to set the html of the node
-   * @return {?string}       If value is null, returns a string of the html content of the node. 
+   * @return {?string}       If value is null, returns a string of the html content of the node.
    */
   html(child = ".dragbox-content", value = null) {
-    // 
+    //
     if (this.boxElement) {
-      var target = (child != "container") ? this.boxElement.find(child) : this.boxElement;
+      var target = child != "container" ?
+        this.boxElement.find(child) :
+        this.boxElement;
 
       if (value !== null) {
         target.html(value);
       } else {
-        return (target.html());
+        return target.html();
       }
     }
   }
 
   /* ======== Setters and getters ======== */
-
   set width(width) {
     this._width = width;
     this.updateSize();
   }
 
   get width() {
-    return (this._width);
+    return this._width;
   }
 
   set height(height) {
@@ -360,7 +374,7 @@ class DragBox {
   }
 
   get height() {
-    return (this._height);
+    return this._height;
   }
 
   set beingDragged(dragged) {
@@ -369,12 +383,11 @@ class DragBox {
   }
 
   get beingDragged() {
-    return (this._beingDragged);
+    return this._beingDragged;
   }
 
   set boxClass(newClass) {
     if (this.boxElement) {
-
       if (typeof newClass != "string") {
         throw new Error("newClass must be a string");
       }
@@ -384,8 +397,7 @@ class DragBox {
       // if (spacePos != -1) {
       //   newClass = newClass.substr(0, spacePos);
       // }
-
-      // remove the old class from the boxElement and add the new class 
+      // remove the old class from the boxElement and add the new class
       this.boxElement.removeClass(this.boxClass).addClass(newClass);
       this._boxClass = newClass;
     }
@@ -393,7 +405,7 @@ class DragBox {
 
   get boxClass() {
     if (this.boxElement) {
-      return (this._boxClass);
+      return this._boxClass;
     }
   }
 
@@ -402,19 +414,18 @@ class DragBox {
     if (visibility == "visible") {
       // $(this.boxElement).animate({
       //   opacity: 1.0
-      // }, 150); 
-      $(this.boxElement).hide();
+      // }, 150);
+      $(this.boxElement).show();
     } else {
       // $(this.boxElement).animate({
       //   opacity: 0.0
       // }, 150);
-      $(this.boxElement).show();
+      $(this.boxElement).hide();
     }
-
   }
 
   get visibility() {
-    return (this._visibility);
+    return this._visibility;
   }
 
   set overflow(overflow) {
@@ -423,7 +434,7 @@ class DragBox {
   }
 
   get overflow() {
-    return (this._overflow);
+    return this._overflow;
   }
 
   /**
@@ -433,7 +444,7 @@ class DragBox {
   static get stickiness() {}
 
   get stickiness() {
-    return (this._stickiness);
+    return this._stickiness;
   }
 
   set stickiness(type) {
@@ -455,7 +466,9 @@ class DragBox {
       console.log("stickiness set to magnetized");
       break;
     default:
-      throw new Error("this sticky type does not exist. Types are : none, glue, or magnetized.");
+      throw new Error(
+        "this sticky type does not exist. Types are : none, glue, or magnetized."
+      );
 
     }
     this._stickiness = type;
@@ -485,13 +498,13 @@ class DragBox {
 
   get content() {
     if (this.boxElement) {
-      return (this.contentDiv.html());
+      return this.contentDiv.html();
     }
   }
 
   get contentDiv() {
     if (this.boxElement) {
-      return ($(this.boxElement).find(".dragbox-content"));
+      return $(this.boxElement).find(".dragbox-content");
     }
   }
 
@@ -501,7 +514,7 @@ class DragBox {
    * @return {Array} Array containing variables of the location string.
    */
   getQueryString() {
-    // This function is anonymous, is executed immediately and 
+    // This function is anonymous, is executed immediately and
     // the return value is assigned to QueryString!
     var query_string = {};
     var query = window.location.search.substring(1);
@@ -527,13 +540,13 @@ class DragBox {
   // TODO make non static probably
   // some static helper functions
   static stayInWindow(element) {
-    if (typeof element === 'undefined') {
+    if (typeof element === "undefined") {
       throw new Error("element is undefined");
     }
 
     // constants
-    var STOP_BEING_STICKY_AFTER = 0.15; // times the size in distance
-
+    var STOP_BEING_STICKY_AFTER = 0.15;
+    // times the size in distance
     // coordinates
     var left = element.offsetLeft;
     var right = element.offsetLeft + element.offsetWidth;
@@ -543,14 +556,36 @@ class DragBox {
     var maxLeft = window.innerWidth - element.offsetWidth;
     var maxTop = window.innerHeight - element.offsetHeigth;
 
-    return ({
-      x: (left < 0) ? 0 : (right > window.innerWidth) ? maxLeft : left,
-      y: (top < 0) ? 0 : (bottom > window.innerHeight) ? maxTop : top,
-      stickyX: (left <= 0) ? -2 : (left <= STOP_BEING_STICKY_AFTER * element.offsetWidth) ? -1 : (right >= window.innerWidth) ? 2 : (right >= window.innerWidth - STOP_BEING_STICKY_AFTER * element.offsetWidth) ? 1 : 0,
-      stickyY: (top <= 0) ? -2 : (top <= STOP_BEING_STICKY_AFTER * element.offsetHeigth) ? -1 : (bottom >= window.innerHeight) ? 2 : (bottom >= window.innerHeight - STOP_BEING_STICKY_AFTER * element.offsetHeigth) ? 1 : 0,
-      leftSticky: (left <= 0) ? 0 : (left <= STOP_BEING_STICKY_AFTER * element.offsetWidth) ? 0 : (right >= window.innerWidth) ? window.innerWidth - element.offsetWidth : (right >= window.innerWidth - STOP_BEING_STICKY_AFTER * element.offsetWidth) ? window.innerWidth - element.offsetWidth : left,
-      topSticky: (top <= 0) ? 0 : (top <= STOP_BEING_STICKY_AFTER * element.offsetHeigth) ? 0 : (bottom >= window.innerHeight) ? window.innerHeight - element.offsetHeigth : (bottom >= window.innerHeight - STOP_BEING_STICKY_AFTER * element.offsetHeigth) ? window.innerHeight - element.offsetHeigth : top
-    });
+    return {
+      x: left < 0 ? 0 : right > window.innerWidth ? maxLeft : left,
+      y: top < 0 ? 0 : bottom > window.innerHeight ? maxTop : top,
+      stickyX: left <= 0 ?
+        -2 : left <= STOP_BEING_STICKY_AFTER * element.offsetWidth ?
+        -1 : right >= window.innerWidth ?
+        2 : right >=
+        window.innerWidth - STOP_BEING_STICKY_AFTER * element.offsetWidth ?
+        1 : 0,
+      stickyY: top <= 0 ?
+        -2 : top <= STOP_BEING_STICKY_AFTER * element.offsetHeigth ?
+        -1 : bottom >= window.innerHeight ?
+        2 : bottom >=
+        window.innerHeight -
+        STOP_BEING_STICKY_AFTER * element.offsetHeigth ?
+        1 : 0,
+      leftSticky: left <= 0 ?
+        0 : left <= STOP_BEING_STICKY_AFTER * element.offsetWidth ?
+        0 : right >= window.innerWidth ?
+        window.innerWidth - element.offsetWidth : right >=
+        window.innerWidth - STOP_BEING_STICKY_AFTER * element.offsetWidth ?
+        window.innerWidth - element.offsetWidth : left,
+      topSticky: top <= 0 ?
+        0 : top <= STOP_BEING_STICKY_AFTER * element.offsetHeigth ?
+        0 : bottom >= window.innerHeight ?
+        window.innerHeight - element.offsetHeigth : bottom >=
+        window.innerHeight -
+        STOP_BEING_STICKY_AFTER * element.offsetHeigth ?
+        window.innerHeight - element.offsetHeigth : top
+    };
   }
 
   static getCoordinateInWindow(element) {
@@ -562,30 +597,35 @@ class DragBox {
     var maxLeft = window.innerWidth - element.offsetWidth;
     var maxTop = window.innerHeight - element.offsetHeigth;
 
-    return ({
+    return {
       left: left,
       right: right,
       top: top,
       bottom: bottom,
       maxLeft: maxLeft,
       maxTop: maxTop
-    });
+    };
   }
 }
 
 /** Helper class creating modals */
 class SmartModal extends DragBox {
-  constructor(formatType = "across", callback = null, buttonType = "closebutton", boxElement = null) {
+  constructor(
+    formatType = "across",
+    callback = null,
+    buttonType = "closebutton",
+    boxElement = null
+  ) {
     // call super constructor
     super(boxElement);
 
     // constants
-    this.DEFAULT_BUTTON_ROW_HTML = '<div class="col-xs-12 dragbox-row smartmodal-buttonrow"></div>';
+    this.DEFAULT_BUTTON_ROW_HTML = "<div class=\"col-xs-12 dragbox-row smartmodal-buttonrow\"></div>";
     this.DEFAULT_BUTTON_HTML = {
-      closebutton: '<button type="button" class="btn btn-secondary dragbox-button  smartmodal-closebutton">Close</button>',
-      nextbutton: '<button type="button" class="btn btn-secondary dragbox-button smartmodal-nextbutton">Next</button>',
-      blankbutton: '<button type="button" class="btn btn-secondary dragbox-button smartmodal-blankbutton"></button>',
-      sendbutton: '<button type="button" class="btn btn-secondary dragbox-button smartmodal-sendbutton">Send</button>',
+      closebutton: "<button type=\"button\" class=\"btn btn-secondary dragbox-button  smartmodal-closebutton\">Close</button>",
+      nextbutton: "<button type=\"button\" class=\"btn btn-secondary dragbox-button smartmodal-nextbutton\">Next</button>",
+      blankbutton: "<button type=\"button\" class=\"btn btn-secondary dragbox-button smartmodal-blankbutton\"></button>",
+      sendbutton: "<button type=\"button\" class=\"btn btn-secondary dragbox-button smartmodal-sendbutton\">Send</button>"
     };
     this.DEFAULT_FORMAT_TYPES = {
       // format type desribe the topOffset, width, and height of the modal in proportion
@@ -596,7 +636,7 @@ class SmartModal extends DragBox {
       overlay: [0.1, 0.8, 0.8]
     };
 
-    // callback 
+    // callback
     this.callback = callback;
 
     // ui
@@ -613,11 +653,14 @@ class SmartModal extends DragBox {
     this.rows = [];
 
     // set dragbox title
-    this.title = '<center><h5>Smart Modal</h5></center>';
+    this.title = "<center><h5>Smart Modal</h5></center>";
 
     // setup the button
     this.append(this.buttonRowHtml, ".dragbox-footer");
-    this.append(this.DEFAULT_BUTTON_HTML[this.buttonType], ".smartmodal-buttonrow");
+    this.append(
+      this.DEFAULT_BUTTON_HTML[this.buttonType],
+      ".smartmodal-buttonrow"
+    );
 
     this.button = $(this.boxElement).find(".smartmodal-" + this.buttonType);
 
@@ -634,7 +677,6 @@ class SmartModal extends DragBox {
     $(this.button).click(function () {
       smartModalObject.callThenDestroy();
     });
-
   }
 
   // after setup life cycle function
@@ -671,7 +713,9 @@ class SmartModal extends DragBox {
     $(this.boxElement).animate({
       left: leftPos,
       top: topPos
-    }, 25, function () {});
+    }, 25, function (
+
+    ) {});
     return false;
   }
 }
@@ -683,37 +727,55 @@ class ParamBox extends DragBox {
     super(boxElement);
 
     // constants
-    this.DEFAULT_ROW_HTML = '<div class="col-md-12 dragbox-row paramboxtmprow"></div>';
+    this.DEFAULT_ROW_HTML = "<div class=\"col-md-12 dragbox-row paramboxtmprow\"></div>";
 
-    this.PARAMBOX_EMPTY_SUBTITLE_ROW_HTML = '<div class="col-md-12 dragbox-row paramboxtmprow"><a class="parambox-subtitle">Subtitle</a></div>';
+    this.PARAMBOX_EMPTY_SUBTITLE_ROW_HTML = "<div class=\"col-md-12 dragbox-row paramboxtmprow\"><a class=\"parambox-subtitle\">Subtitle</a></div>";
 
-    this.PARAMBOX_EMPTY_ROW_HTML = '<div class="col-md-12 dragbox-row parambox-empty"><center>No parameters binded.</center></div>';
+    this.PARAMBOX_EMPTY_ROW_HTML = "<div class=\"col-md-12 dragbox-row parambox-empty\"><center>No parameters binded.</center></div>";
 
-    this.DEFAULT_BUTTON_ROW_HTML = '<div class="col-xs-12 dragbox-row parambox-buttonrow"></div>';
+    this.DEFAULT_BUTTON_ROW_HTML = "<div class=\"col-xs-12 dragbox-row parambox-buttonrow\"></div>";
     this.DEFAULT_BUTTON_HTML = {
-      savebutton: '<button type="button" class="btn btn-secondary btn-block dragbox-button parambox-savebutton">Save</button>',
-      importbutton: '<button type="button" class="btn btn-secondary  btn-block dragbox-button parambox-importbutton">Import</button>',
-      reloadbutton: '<button type="button" class="btn btn-secondary btn-block dragbox-button parambox-reloadbutton">Reload</button>'
+      savebutton: "<button type=\"button\" class=\"btn btn-secondary btn-block dragbox-button parambox-savebutton\">Save</button>",
+      importbutton: "<button type=\"button\" class=\"btn btn-secondary  btn-block dragbox-button parambox-importbutton\">Import</button>",
+      reloadbutton: "<button type=\"button\" class=\"btn btn-secondary btn-block dragbox-button parambox-reloadbutton\">Reload</button>"
     };
 
     // setup the buttons
     this.append(this.DEFAULT_BUTTON_ROW_HTML, ".dragbox-footer");
-    this.append(this.DEFAULT_BUTTON_HTML.savebutton, ".parambox-buttonrow", "col-xs-4");
-    this.append(this.DEFAULT_BUTTON_HTML.importbutton, ".parambox-buttonrow", "col-xs-4");
-    this.append(this.DEFAULT_BUTTON_HTML.reloadbutton, ".parambox-buttonrow", "col-xs-4");
+    this.append(
+      this.DEFAULT_BUTTON_HTML.savebutton,
+      ".parambox-buttonrow",
+      "col-xs-4"
+    );
+    this.append(
+      this.DEFAULT_BUTTON_HTML.importbutton,
+      ".parambox-buttonrow",
+      "col-xs-4"
+    );
+    this.append(
+      this.DEFAULT_BUTTON_HTML.reloadbutton,
+      ".parambox-buttonrow",
+      "col-xs-4"
+    );
 
     var thisObject = this;
-    this.boxElement[0].getElementsByClassName("parambox-savebutton")[0].addEventListener("click", function (e) {
+    this.boxElement[0].getElementsByClassName(
+      "parambox-savebutton"
+    )[0].addEventListener("click", function (e) {
       thisObject.save(e);
     });
-    this.boxElement[0].getElementsByClassName("parambox-importbutton")[0].addEventListener("click", function (e) {
+    this.boxElement[0].getElementsByClassName(
+      "parambox-importbutton"
+    )[0].addEventListener("click", function (e) {
       thisObject.import(e);
     });
-    this.boxElement[0].getElementsByClassName("parambox-reloadbutton")[0].addEventListener("click", function (e) {
+    this.boxElement[0].getElementsByClassName(
+      "parambox-reloadbutton"
+    )[0].addEventListener("click", function (e) {
       thisObject.reloadAndImport(e);
     });
 
-    $(document).on('click', '.parambox-subtitle', function () {
+    $(document).on("click", ".parambox-subtitle", function () {
       var id = $(this).attr("subtitle-id");
       $("[parambox-belong-to='" + id + "']").slideToggle(250);
     });
@@ -728,7 +790,7 @@ class ParamBox extends DragBox {
     this.subtitleRows = {};
 
     // set dragbox title
-    this.title = '<h5><i class="fa fa-cog fa-1x"></i> Parameter Box</h5>';
+    this.title = "<h5><i class=\"fa fa-cog fa-1x\"></i> Parameter Box</h5>";
 
     // set overflow
     this.overflow = "scroll";
@@ -746,12 +808,11 @@ class ParamBox extends DragBox {
     this.updateSize();
 
     this.refreshView();
-
   }
 
   // binding methods
   bind(object, properties, constraints = null) {
-    if (typeof object == 'undefined') {
+    if (typeof object == "undefined") {
       throw new Error("object is undefined");
     }
 
@@ -762,8 +823,8 @@ class ParamBox extends DragBox {
     }
 
     for (var i = 0; i < properties.length; i++) {
-
-      objectHierarchy = this.getDescendantProp(object, properties[i]); // TODO use lodash ?
+      objectHierarchy = this.getDescendantProp(object, properties[i]);
+      // TODO use lodash ?
       var objectTemp = objectHierarchy[0];
       var property = objectHierarchy[1];
 
@@ -781,18 +842,31 @@ class ParamBox extends DragBox {
 
       // look for a constrained field
       if (constraints !== null) {
-        if (typeof constraints[properties[i]] != 'undefined') {
+        if (typeof constraints[properties[i]] != "undefined") {
           var constraintValues = constraints[properties[i]];
 
           if (initialValue !== null) {
             if (constraintValues.indexOf(initialValue) === -1) {
-              throw new Error("ParamBox.bind: cannot set initial value to query string value of " + initialValue + " because it is not in the constraints array.");
+              throw new Error(
+                "ParamBox.bind: cannot set initial value to query string value of " +
+                initialValue +
+                " because it is not in the constraints array."
+              );
             }
 
-            objectTemp[property] = objectTemp[property].constructor(initialValue);
+            objectTemp[property] = objectTemp[property].constructor(
+              initialValue
+            );
           }
 
-          var bindedField = new BindedField(objectTemp, property, rowDom, 'selector', constraintValues, properties[i]);
+          var bindedField = new BindedField(
+            objectTemp,
+            property,
+            rowDom,
+            "selector",
+            constraintValues,
+            properties[i]
+          );
         }
       }
 
@@ -803,9 +877,22 @@ class ParamBox extends DragBox {
         }
 
         if (objectTemp[property].constructor === Boolean) {
-          var bindedField = new BindedField(objectTemp, property, rowDom, 'selector', ["TRUE", "FALSE"], properties[i]);
+          var bindedField = new BindedField(
+            objectTemp,
+            property,
+            rowDom,
+            "selector", ["TRUE", "FALSE"],
+            properties[i]
+          );
         } else {
-          var bindedField = new BindedField(objectTemp, property, rowDom, 'input', null, properties[i]);
+          var bindedField = new BindedField(
+            objectTemp,
+            property,
+            rowDom,
+            "input",
+            null,
+            properties[i]
+          );
         }
       }
 
@@ -813,14 +900,13 @@ class ParamBox extends DragBox {
     }
 
     this.refreshView();
-
   }
 
   unbind(object, property) {
     for (var i = 0; i < this.rows.length; i++) {
       var bindedField = this.rows[i].bindedField;
 
-      if ((bindedField.object === object) && (bindedField.property == property)) {
+      if (bindedField.object === object && bindedField.property == property) {
         this.rows.splice(i, 1);
         bindedField.delete();
       }
@@ -829,8 +915,7 @@ class ParamBox extends DragBox {
     this.refreshView();
   }
 
-  // ui methods 
-
+  // ui methods
   newRowInDom(subtitle = "") {
     if (subtitle !== "") {
       if (!(subtitle in this.subtitleRows)) {
@@ -855,20 +940,23 @@ class ParamBox extends DragBox {
   }
 
   getBindedRow(rowDom, bindedField) {
-    return ({
+    return {
       rowDom: rowDom,
       bindedField: bindedField
-    });
+    };
   }
 
   refreshView() {
     // TODO: maybe check if all binded field are displayed in the paramBox. if not add them. get rid of unbinded field
-
     /* --- Add an export button if there is at least one binded property --- */
     if (this.rows.length) {
-      this.boxElement[0].getElementsByClassName("parambox-buttonrow")[0].style.visibility = "visible";
+      this.boxElement[0].getElementsByClassName(
+        "parambox-buttonrow"
+      )[0].style.visibility = "visible";
     } else {
-      this.boxElement[0].getElementsByClassName("parambox-buttonrow")[0].style.visibility = "hidden";
+      this.boxElement[0].getElementsByClassName(
+        "parambox-buttonrow"
+      )[0].style.visibility = "hidden";
       //TODO: add empty message
     }
 
@@ -879,15 +967,14 @@ class ParamBox extends DragBox {
     }
 
     this.height = height;
-
   }
 
   keyfunction(e) {
     // check if shift + P hotkeys were stroke and toggle visibility if so
-    this.map[e.keyCode] = e.type == 'keydown';
+    this.map[e.keyCode] = e.type == "keydown";
 
     // hide and show parameter box
-    if ((this.map[16]) && (this.map[80])) {
+    if (this.map[16] && this.map[80]) {
       // 16 == Shift - 80 == P
       //make sure to reset value in case keyup event is ignored (keep shift true for rapid toggle)
       this.map[80] = false;
@@ -898,7 +985,6 @@ class ParamBox extends DragBox {
       // prevent default action if any
       e.preventDefault();
     }
-
   }
 
   /* ======== Import/Export functions ======== */
@@ -914,11 +1000,11 @@ class ParamBox extends DragBox {
       });
     }
 
-    return (summaryArray);
+    return summaryArray;
   }
 
   import (event) {
-    // make it a smart form 
+    // make it a smart form
     // but while smart forms are finished use a simple prompt
     var importedString = prompt("Enter a JSON string:");
     var importedJSON = null;
@@ -930,15 +1016,23 @@ class ParamBox extends DragBox {
 
     if (importedJSON !== null) {
       if (importedJSON.constructor !== Array) {
-        console.error("ParamBox.import: Invalid JSON string - the parent object needs to be of the same structure as the summaryArray");
+        console.error(
+          "ParamBox.import: Invalid JSON string - the parent object needs to be of the same structure as the summaryArray"
+        );
       }
 
       for (var i = 0; i < importedJSON.length; i++) {
         if (typeof importedJSON[i].property === "undefined") {
-          console.error("ParamBox.import: importedJSON[" + i + "].property is undefined. Invalid JSON string - the parent object needs to be of the same structure as the summaryArray.");
+          console.error(
+            "ParamBox.import: importedJSON[" + i +
+            "].property is undefined. Invalid JSON string - the parent object needs to be of the same structure as the summaryArray."
+          );
         }
         if (typeof importedJSON[i].value === "undefined") {
-          console.error("ParamBox.import: importedJSON[" + i + "].value is undefined. Invalid JSON string - the parent object needs to be of the same structure as the summaryArray.");
+          console.error(
+            "ParamBox.import: importedJSON[" + i +
+            "].value is undefined. Invalid JSON string - the parent object needs to be of the same structure as the summaryArray."
+          );
         }
 
         this.setProperty(importedJSON[i].property, importedJSON[i].value);
@@ -958,37 +1052,39 @@ class ParamBox extends DragBox {
     if (height > 500) {
       height = 500;
     }
-    window.open('data:application/json;' + (window.btoa ? 'base64,' + btoa(stringified) : stringified), "ParamBox.save", "width=400,height=" + height);
-
+    window.open(
+      "data:application/json;" +
+      (window.btoa ? "base64," + btoa(stringified) : stringified),
+      "ParamBox.save",
+      "width=400,height=" + height
+    );
   }
 
   reloadAndImport(event) {
     /* --- Serialize the parameters in URL format --- */
-
     var summaryArray = this.getSummaryArray();
     var str = "";
     for (var i = 0; i < summaryArray.length; i++) {
       if (str !== "") {
         str += "&";
       }
-      str += summaryArray[i].exportName + "=" + encodeURIComponent(summaryArray[i].value);
+      str += summaryArray[i].exportName + "=" +
+        encodeURIComponent(summaryArray[i].value);
     }
 
     /* --- Append the parameters and reload the page --- */
-
     var url = window.location.href;
     var questionPosition = url.indexOf("?");
     if (questionPosition !== -1) {
-      // delete arguments from the URL 
+      // delete arguments from the URL
       url = url.substring(0, questionPosition);
     }
     url += "?" + str;
     window.location.href = url;
-
   }
 
   /**
-   * Gets the last object and property from a string description of object hierachy 
+   * Gets the last object and property from a string description of object hierachy
    * @param  {object} object      Top object from which the hierarchy starts
    * @param  {string} description String describing the object hierachy (e.g this.object.has.property )
    * @return {array}             [parentObject, lastProperty, propertyValue]
@@ -1032,7 +1128,6 @@ class ParamBox extends DragBox {
       console.warn("ParamBox.setProperty: did not find property " + property);
     }
   }
-
 }
 
 /** Wrapper class for easy chart creation using chart.js and SmartModal */
@@ -1043,23 +1138,27 @@ class SmartChart extends SmartModal {
     }
 
     if (options.constructor !== Object) {
-      throw new Error("SmartChart.constructor: options needs to be an object (chart.js chart options)");
+      throw new Error(
+        "SmartChart.constructor: options needs to be an object (chart.js chart options)"
+      );
     }
     super("overlay", callback, "closebutton", boxElement);
-    // save options 
+    // save options
     this.chartOptions = $.extend(true, {}, options);
 
     // set dragbox title
-    this.title = '<center><h5>Smart Chart</h5></center>';
+    this.title = "<center><h5>Smart Chart</h5></center>";
 
-    // Create canvas 
+    // Create canvas
     var canvasID = "chart-canvas" + ($("canvas").length + 1);
-    this.content = '<canvas id="' + canvasID + '" class="chart-canvas"></canvas>';
+    this.content = "<canvas id=\"" + canvasID +
+      "\" class=\"chart-canvas\"></canvas>";
     this.canvas = document.getElementById(canvasID);
 
     if (typeof options.options.title.text !== "undefined") {
       options.options.title.display = false;
-      this.title = '<center><h5>' + options.options.title.text + '</h5></center>';
+      this.title = "<center><h5>" + options.options.title.text +
+        "</h5></center>";
     }
 
     // Create chart
@@ -1068,25 +1167,37 @@ class SmartChart extends SmartModal {
       Chart.defaults.global.maintainAspectRatio = false;
       this.chart = new Chart(this.canvas, options);
     } catch (e) {
-      throw new Error("SmartChart.constructor: could not build the chart. Error: " + e);
+      throw new Error(
+        "SmartChart.constructor: could not build the chart. Error: " + e
+      );
     }
 
     this.canvas.style.background = "white";
     this.boxClass = "dragbox dragbox-white-boxshadow";
 
-    // setup footer and buttons 
-    this.DEFAULT_BUTTON_ROW_HTML = '<div class="col-xs-12 dragbox-row smartchart-buttonrow"><div class="col-xs-10"></div></div>';
+    // setup footer and buttons
+    this.DEFAULT_BUTTON_ROW_HTML = "<div class=\"col-xs-12 dragbox-row smartchart-buttonrow\"><div class=\"col-xs-10\"></div></div>";
     this.DEFAULT_BUTTON_HTML = {
-      closebutton: '<button type="button" class="btn btn-secondary dragbox-button  smartchart-closebutton">Close</button>',
-      savebutton: '<button type="button" class="btn btn-secondary dragbox-button smartchart-savebutton">Save</button>'
+      closebutton: "<button type=\"button\" class=\"btn btn-secondary dragbox-button  smartchart-closebutton\">Close</button>",
+      savebutton: "<button type=\"button\" class=\"btn btn-secondary dragbox-button smartchart-savebutton\">Save</button>"
     };
 
     this.html(".dragbox-footer", this.DEFAULT_BUTTON_ROW_HTML);
 
-    this.append(this.DEFAULT_BUTTON_HTML.savebutton, ".smartchart-buttonrow", "col-xs-1 centered");
-    this.append(this.DEFAULT_BUTTON_HTML.closebutton, ".smartchart-buttonrow", "col-xs-1 centered");
+    this.append(
+      this.DEFAULT_BUTTON_HTML.savebutton,
+      ".smartchart-buttonrow",
+      "col-xs-1 centered"
+    );
+    this.append(
+      this.DEFAULT_BUTTON_HTML.closebutton,
+      ".smartchart-buttonrow",
+      "col-xs-1 centered"
+    );
 
-    this.closeButton = this.button = $(this.boxElement).find(".smartchart-closebutton");
+    this.closeButton = this.button = $(this.boxElement).find(
+      ".smartchart-closebutton"
+    );
     this.saveButton = $(this.boxElement).find(".smartchart-savebutton");
 
     // event listener on the button
@@ -1102,16 +1213,16 @@ class SmartChart extends SmartModal {
     this.updatePosition();
     this.updateSize();
     var thisObject = this;
-    setTimeout(function () {
-      thisObject.chart.resize();
-      thisObject.show();
-    }, 250);
-
+    setTimeout(
+      function () {
+        thisObject.chart.resize();
+        thisObject.show();
+      },
+      250
+    );
   }
 
-  callAfterConstructor() {
-    // overide smart modal
-  }
+  callAfterConstructor() {}
 
   /** Overides SmartModal.callThenDestroy() function */
   callThenDestroy() {
@@ -1121,7 +1232,7 @@ class SmartChart extends SmartModal {
     }
 
     // if chart destroy the chart .destroy()
-    if ((typeof this.chart !== "undefined") && (typeof Chart !== "undefined")) {
+    if (typeof this.chart !== "undefined" && typeof Chart !== "undefined") {
       if (this.chart.constructor === Chart) {
         this.chart.destroy();
       }
@@ -1139,10 +1250,13 @@ class SmartChart extends SmartModal {
     if (height > 500) {
       height = 500;
     }
-    window.open('data:application/json;' + (window.btoa ? 'base64,' + btoa(stringified) : stringified), "SmartChart.save", "width=400,height=" + height);
-
+    window.open(
+      "data:application/json;" +
+      (window.btoa ? "base64," + btoa(stringified) : stringified),
+      "SmartChart.save",
+      "width=400,height=" + height
+    );
   }
-
 }
 /** TODO: Class generating a form based on preset fields and managing */
 // class SmartForm extends SmartModal {
@@ -1150,12 +1264,9 @@ class SmartChart extends SmartModal {
 //     if (fields.constructor !== Object) {
 //       throw new Error("SmartForm: fields is not an object.");
 //     }
-
 //     /* --- Create the modal for the form --- */
 //     super("overlay", callback, "sendbutton", boxElement);
-
-//     // TODO Create the form element IF url !== null, else only use the callback to handle data. 
-
+//     // TODO Create the form element IF url !== null, else only use the callback to handle data.
 //     // constraints can be functions like checkPassword(x) { return (bool) }
 //     this.fields = {};
 //     var keys = _.keys(fields);
@@ -1165,26 +1276,19 @@ class SmartChart extends SmartModal {
 //       if (typeof fields[key].type === "undefined") {
 //         throw new Error("SmartForm: field[" + i + "].type is undefinned");
 //       }
-
 //       var baseField = {
 //         type: null,
 //         constraints: null,
 //         value: "",
 //         bindedField: null
 //       };
-
-//       fields[key] = _.extends(baseField, fields[key]); // TODO Either migrate to lodash or rewrite an extend function as well a a keys function 
-
+//       fields[key] = _.extends(baseField, fields[key]); // TODO Either migrate to lodash or rewrite an extend function as well a a keys function
 //       this.fields[key] = fields[key];
-
 //       // TODO Create a form row
 //       this.fields[key].bindedField = new BindedField(this.fields, key, this.content, this.fields[key].type, this.fields[key].constraints);
-
 //     }
-
 //   }
 // }
-
 class BindedProperty {
   constructor(object = null, property = null, hierarchy = null) {
     // constants
@@ -1193,11 +1297,12 @@ class BindedProperty {
     // data properties
     this.property = property;
     this.object = object;
-    this.propagate = false; // to add ? chain propagation? a subscription system maybe...
+    this.propagate = false;
+    // to add ? chain propagation? a subscription system maybe...
     this.type = null;
 
     // export value as hierarchy if set, else set as property name
-    this.hierarchy = (hierarchy !== null) ? hierarchy : property;
+    this.hierarchy = hierarchy !== null ? hierarchy : property;
     this.exportName = this.hierarchy.replace(/\./g, "_");
 
     if (!this.object) {
@@ -1208,18 +1313,21 @@ class BindedProperty {
     if (property !== null) {
       this.bind(object, property);
     }
-
   }
 
   /* ======== Binding function ======== */
-
   bind(object, property) {
     var propertyType = typeof this.object[this.property];
-    if (propertyType === 'undefined') {
-      throw new Error("Parambox: The variable '" + property + "' you are trying to bind is undefined - either this object or the property is not defined");
+    if (propertyType === "undefined") {
+      throw new Error(
+        "Parambox: The variable '" + property +
+        "' you are trying to bind is undefined - either this object or the property is not defined"
+      );
     } else {
       if (this.HANDLED_VARIABLE_TYPES.indexOf(propertyType) == -1) {
-        throw new Error("The variable you are trying to bind is of a non-handled type (string, number or boolean");
+        throw new Error(
+          "The variable you are trying to bind is of a non-handled type (string, number or boolean"
+        );
       }
 
       /**
@@ -1240,42 +1348,47 @@ class BindedProperty {
        */
       this.type = this.object[this.property].constructor;
     }
-
   }
 
   convertToType(value) {
-      if (this.type) {
-        if (this.type === Boolean) {
-          switch (String(value).toUpperCase()) {
-          case "0":
-            return (false);
-          case "1":
-            return (true);
-          case "FALSE":
-            return (false);
-          case "TRUE":
-            return (true);
-          }
+    if (this.type) {
+      if (this.type === Boolean) {
+        switch (String(value).toUpperCase()) {
+        case "0":
+          return false;
+        case "1":
+          return true;
+        case "FALSE":
+          return false;
+        case "TRUE":
+          return true;
         }
-        return (this.type(value));
-      } else {
-        throw new Error("You are trying to convert a value to a the type of the binded property but the object has no property binded to it (or no type)");
       }
+      return this.type(value);
+    } else {
+      throw new Error(
+        "You are trying to convert a value to a the type of the binded property but the object has no property binded to it (or no type)"
+      );
     }
-    // getters and setters
+  }
+  // getters and setters
   set value(value) {
-    if (typeof this.object[this.property] === 'undefined') {
-      throw new Error("The variable you are trying to bind is undefined - either this object or the property is incorrect");
+    if (typeof this.object[this.property] === "undefined") {
+      throw new Error(
+        "The variable you are trying to bind is undefined - either this object or the property is incorrect"
+      );
     } else {
       this.object[this.property] = this.convertToType(value);
     }
   }
 
   get value() {
-    if (typeof this.object[this.property] === 'undefined') {
-      throw new Error("The variable you are trying to bind is undefined - either this object or the property is incorrect");
+    if (typeof this.object[this.property] === "undefined") {
+      throw new Error(
+        "The variable you are trying to bind is undefined - either this object or the property is incorrect"
+      );
     } else {
-      return (this.object[this.property]);
+      return this.object[this.property];
     }
   }
 }
@@ -1283,13 +1396,14 @@ class BindedProperty {
 class BindedField extends BindedProperty {
   // this class holds an active input field (select, text input, slider component)
   // it creates a field from the selected type and bind a binded property to it
-  constructor(object = mandatory("object"),
+  constructor(
+    object = mandatory("object"),
     property = mandatory("property"),
     parent = null,
-    fieldType = 'input',
+    fieldType = "input",
     allowedValues = null,
-    hierarchy = null) {
-
+    hierarchy = null
+  ) {
     super(object, property, hierarchy);
 
     // constant
@@ -1307,31 +1421,48 @@ class BindedField extends BindedProperty {
 
     // build the field html
     switch (this.fieldType) {
-    case 'input':
-      this.fieldHTML = '<fieldset class="form-group">' +
-        '<label>' + property + '</label>' +
-        '<input type="text" class="form-control ' + this.tempClass + '" data-binded="' + property + '">' +
-        '</fieldset>';
+    case "input":
+      this.fieldHTML = "<fieldset class=\"form-group\">" + "<label>" +
+        property +
+        "</label>" +
+        "<input type=\"text\" class=\"form-control " +
+        this.tempClass +
+        "\" data-binded=\"" +
+        property +
+        "\">" +
+        "</fieldset>";
       break;
-    case 'selector':
+    case "selector":
       if (!allowedValues) {
-        throw new Error("fieldType selector needs at least one allowedValues");
+        throw new Error(
+          "fieldType selector needs at least one allowedValues"
+        );
       }
 
-      this.fieldHTML = '<fieldset class="form-group">' +
-        '<label>' + property + '</label>' +
-        '<select class="form-control ' + this.tempClass + '" data-binded="' + property + '">';
+      this.fieldHTML = "<fieldset class=\"form-group\">" + "<label>" +
+        property +
+        "</label>" +
+        "<select class=\"form-control " +
+        this.tempClass +
+        "\" data-binded=\"" +
+        property +
+        "\">";
 
       for (var i = 0; i < this.allowedValues.length; i++) {
-        this.fieldHTML = this.fieldHTML +
-          '<option value="' + this.allowedValues[i] + '">' + this.allowedValues[i] + '</option>';
+        this.fieldHTML = this.fieldHTML + "<option value=\"" +
+          this.allowedValues[i] +
+          "\">" +
+          this.allowedValues[i] +
+          "</option>";
       }
-      this.fieldHTML = this.fieldHTML + '</select></fieldset>';
+      this.fieldHTML = this.fieldHTML + "</select></fieldset>";
       break;
-    case 'slider':
+    case "slider":
       break;
     default:
-      throw new Error("fieldType is invalid : input, selector and slider are the only valid type for now");
+      throw new Error(
+        "fieldType is invalid : input, selector and slider are the only valid type for now"
+      );
     }
 
     if (parent) {
@@ -1376,9 +1507,7 @@ class BindedField extends BindedProperty {
         thisObject.update("field");
         break;
       }
-
     });
-
   }
 
   delete() {
@@ -1393,17 +1522,20 @@ class BindedField extends BindedProperty {
       this.value = $(this.field).val();
       $(this.field).get(0).blur();
     } else {
-      if ($(this.field).val().toUpperCase() != String(this.value).toUpperCase()) {
+      if (
+        $(this.field).val().toUpperCase() != String(this.value).toUpperCase()
+      ) {
         $(this.field).val(this.value);
       }
     }
-
   }
 
   // getters and setters
   set value(value) {
-    if (typeof this.object[this.property] === 'undefined') {
-      throw new Error("The variable you are trying to bind is undefined - either this object or the property is incorrect");
+    if (typeof this.object[this.property] === "undefined") {
+      throw new Error(
+        "The variable you are trying to bind is undefined - either this object or the property is incorrect"
+      );
     } else {
       this.object[this.property] = this.convertToType(value);
       this.update("setter");
@@ -1411,17 +1543,19 @@ class BindedField extends BindedProperty {
   }
 
   get value() {
-    if (typeof this.object[this.property] === 'undefined') {
-      throw new Error("The variable you are trying to bind is undefined - either this object or the property is incorrect");
+    if (typeof this.object[this.property] === "undefined") {
+      throw new Error(
+        "The variable you are trying to bind is undefined - either this object or the property is incorrect"
+      );
     } else {
-      return (this.object[this.property]);
+      return this.object[this.property];
     }
   }
 }
 
 // utilities
 function mandatory(param = "") {
-  throw new Error('Missing parameter ' + param);
+  throw new Error("Missing parameter " + param);
 }
 
 /**
@@ -1433,14 +1567,14 @@ function mandatory(param = "") {
 function findAllIndices(needle = mandatory(), haystack = mandatory()) {
   var indices = [];
   for (var i = 0; i < haystack.length; i++) {
-    if ((haystack.substr(i, needle.length)) === needle) {
+    if (haystack.substr(i, needle.length) === needle) {
       indices.push(i);
     }
   }
 
   if (indices.length) {
-    return (indices);
+    return indices;
   } else {
-    return (-1);
+    return -1;
   }
 }
