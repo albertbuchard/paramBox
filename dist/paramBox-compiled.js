@@ -1,6 +1,6 @@
 "use strict";
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -15,12 +15,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * Created. 2016
  *
  * Plug and play tools for easy development in js. Part of the experiment.js toolbox.
- * 
- * Authors. Albert Buchard 
+ *
+ * Authors. Albert Buchard
  *
  * Requires: bootstrap and jQuery
- * 
- * LICENSE MIT 
+ *
+ * LICENSE MIT
  */
 
 /* =============== Set-up =============== */
@@ -33,11 +33,11 @@ paramBoxFullpath = paramBoxFullpath.substr(0, delimiterIndices[delimiterIndices.
 
 /* === Add the paramBox css once the page is loaded === */
 document.addEventListener("DOMContentLoaded", function (event) {
-  var head = document.getElementsByTagName('head')[0];
-  var link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.type = 'text/css';
-  link.href = paramBoxFullpath + '/paramBox.css';
+  var head = document.getElementsByTagName("head")[0];
+  var link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.type = "text/css";
+  link.href = paramBoxFullpath + "/paramBox.css";
   head.appendChild(link);
 });
 
@@ -45,9 +45,9 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
 var DragBox = function () {
   function DragBox() {
-    var boxElement = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
-    var width = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
-    var height = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+    var boxElement = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+    var width = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+    var height = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
     _classCallCheck(this, DragBox);
 
@@ -103,10 +103,10 @@ var DragBox = function () {
     // check if the box already exists, else create it
     if (!this.boxElement) {
       // get a unique ID for the box
-      this.boxId = "dragbox" + ($('div[id*="dragbox"]').length + 1);
+      this.boxId = "dragbox" + ($("div[id*=\"dragbox\"]").length + 1);
 
       // html for creation
-      this.boxHTML = '<div id="' + this.boxId + '" class="dragbox ' + this._boxClass + '" style="display:none;" draggable="false">' + '<div class="col-xs-12 dragbox-container"><div class="col-xs-12 dragbox-title"><center><h3>Dragbox</h3></center></div>' + '<div class="col-xs-12 dragbox-content"></div><div class="col-xs-12 dragbox-footer"></div></div>' + '</div>';
+      this.boxHTML = "<div id=\"" + this.boxId + "\" class=\"dragbox " + this._boxClass + "\" style=\"display:none;\" draggable=\"false\">" + "<div class=\"col-xs-12 dragbox-container\"><div class=\"col-xs-12 dragbox-title\"><center><h3>Dragbox</h3></center></div>" + "<div class=\"col-xs-12 dragbox-content\"></div><div class=\"col-xs-12 dragbox-footer\"></div></div>" + "</div>";
 
       $(document.body).append(this.boxHTML);
       this.boxElement = $("#" + this.boxId);
@@ -115,7 +115,7 @@ var DragBox = function () {
     }
 
     // set class
-    this.boxClass = $(this.boxElement).attr('class');
+    this.boxClass = $(this.boxElement).attr("class");
 
     //set size
     this.width = this._width;
@@ -162,7 +162,7 @@ var DragBox = function () {
       // fade out and remove from DOM
       var thisObject = this;
       $(this.boxElement).animate({
-        opacity: 0.0
+        opacity: 0
       }, 25, function () {
         $(thisObject.boxElement).remove();
       });
@@ -332,9 +332,8 @@ var DragBox = function () {
     }
 
     // content function
-
     /**
-     * Add the specified html code to the specified target. 
+     * Add the specified html code to the specified target.
      * If wrapInDivClass is set, a div of specified class is created around the html code. This could be usefull to set grid class like 'col-xs-12'.
      * @param  {string} html           html to append to the target
      * @param  {String} to             target identifier eg .target-class or #targetID
@@ -344,13 +343,13 @@ var DragBox = function () {
   }, {
     key: "append",
     value: function append(html) {
-      var to = arguments.length <= 1 || arguments[1] === undefined ? ".dragbox-content" : arguments[1];
-      var wrapInDivClass = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+      var to = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ".dragbox-content";
+      var wrapInDivClass = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
       // append html to the selected child element of the dragbox
       if (this.boxElement) {
         if (wrapInDivClass !== null) {
-          html = '<div class="' + wrapInDivClass + '" >' + html + "</div>";
+          html = "<div class=\"" + wrapInDivClass + "\" >" + html + "</div>";
         }
 
         if (to != "container") {
@@ -365,14 +364,14 @@ var DragBox = function () {
      * set or get html of the selected child element of the DragBox
      * @param  {String} child child selector
      * @param  {?string} value Either null if you want to get the html or a string to set the html of the node
-     * @return {?string}       If value is null, returns a string of the html content of the node. 
+     * @return {?string}       If value is null, returns a string of the html content of the node.
      */
 
   }, {
     key: "html",
     value: function html() {
-      var child = arguments.length <= 0 || arguments[0] === undefined ? ".dragbox-content" : arguments[0];
-      var value = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+      var child = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : ".dragbox-content";
+      var value = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
       //
       if (this.boxElement) {
@@ -455,7 +454,6 @@ var DragBox = function () {
     key: "boxClass",
     set: function set(newClass) {
       if (this.boxElement) {
-
         if (typeof newClass != "string") {
           throw new Error("newClass must be a string");
         }
@@ -465,7 +463,6 @@ var DragBox = function () {
         // if (spacePos != -1) {
         //   newClass = newClass.substr(0, spacePos);
         // }
-
         // remove the old class from the boxElement and add the new class
         this.boxElement.removeClass(this.boxClass).addClass(newClass);
         this._boxClass = newClass;
@@ -484,12 +481,12 @@ var DragBox = function () {
         // $(this.boxElement).animate({
         //   opacity: 1.0
         // }, 150);
-        $(this.boxElement).hide();
+        $(this.boxElement).show();
       } else {
         // $(this.boxElement).animate({
         //   opacity: 0.0
         // }, 150);
-        $(this.boxElement).show();
+        $(this.boxElement).hide();
       }
     },
     get: function get() {
@@ -575,13 +572,13 @@ var DragBox = function () {
   }], [{
     key: "stayInWindow",
     value: function stayInWindow(element) {
-      if (typeof element === 'undefined') {
+      if (typeof element === "undefined") {
         throw new Error("element is undefined");
       }
 
       // constants
-      var STOP_BEING_STICKY_AFTER = 0.15; // times the size in distance
-
+      var STOP_BEING_STICKY_AFTER = 0.15;
+      // times the size in distance
       // coordinates
       var left = element.offsetLeft;
       var right = element.offsetLeft + element.offsetWidth;
@@ -638,25 +635,24 @@ var SmartModal = function (_DragBox) {
   _inherits(SmartModal, _DragBox);
 
   function SmartModal() {
-    var formatType = arguments.length <= 0 || arguments[0] === undefined ? "across" : arguments[0];
-    var callback = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
-    var buttonType = arguments.length <= 2 || arguments[2] === undefined ? "closebutton" : arguments[2];
-    var boxElement = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
+    var formatType = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "across";
+    var callback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+    var buttonType = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "closebutton";
+    var boxElement = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
 
     _classCallCheck(this, SmartModal);
 
     // constants
-
-    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(SmartModal).call(this, boxElement));
+    var _this = _possibleConstructorReturn(this, (SmartModal.__proto__ || Object.getPrototypeOf(SmartModal)).call(this, boxElement));
     // call super constructor
 
 
-    _this.DEFAULT_BUTTON_ROW_HTML = '<div class="col-xs-12 dragbox-row smartmodal-buttonrow"></div>';
+    _this.DEFAULT_BUTTON_ROW_HTML = "<div class=\"col-xs-12 dragbox-row smartmodal-buttonrow\"></div>";
     _this.DEFAULT_BUTTON_HTML = {
-      closebutton: '<button type="button" class="btn btn-secondary dragbox-button  smartmodal-closebutton">Close</button>',
-      nextbutton: '<button type="button" class="btn btn-secondary dragbox-button smartmodal-nextbutton">Next</button>',
-      blankbutton: '<button type="button" class="btn btn-secondary dragbox-button smartmodal-blankbutton"></button>',
-      sendbutton: '<button type="button" class="btn btn-secondary dragbox-button smartmodal-sendbutton">Send</button>'
+      closebutton: "<button type=\"button\" class=\"btn btn-secondary dragbox-button  smartmodal-closebutton\">Close</button>",
+      nextbutton: "<button type=\"button\" class=\"btn btn-secondary dragbox-button smartmodal-nextbutton\">Next</button>",
+      blankbutton: "<button type=\"button\" class=\"btn btn-secondary dragbox-button smartmodal-blankbutton\"></button>",
+      sendbutton: "<button type=\"button\" class=\"btn btn-secondary dragbox-button smartmodal-sendbutton\">Send</button>"
     };
     _this.DEFAULT_FORMAT_TYPES = {
       // format type desribe the topOffset, width, and height of the modal in proportion
@@ -684,7 +680,7 @@ var SmartModal = function (_DragBox) {
     _this.rows = [];
 
     // set dragbox title
-    _this.title = '<center><h5>Smart Modal</h5></center>';
+    _this.title = "<center><h5>Smart Modal</h5></center>";
 
     // setup the button
     _this.append(_this.buttonRowHtml, ".dragbox-footer");
@@ -705,7 +701,6 @@ var SmartModal = function (_DragBox) {
     $(_this.button).click(function () {
       smartModalObject.callThenDestroy();
     });
-
     return _this;
   }
 
@@ -768,27 +763,26 @@ var ParamBox = function (_DragBox2) {
   _inherits(ParamBox, _DragBox2);
 
   function ParamBox() {
-    var boxElement = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+    var boxElement = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
     _classCallCheck(this, ParamBox);
 
     // constants
-
-    var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(ParamBox).call(this, boxElement));
+    var _this2 = _possibleConstructorReturn(this, (ParamBox.__proto__ || Object.getPrototypeOf(ParamBox)).call(this, boxElement));
     // call super constructor
 
 
-    _this2.DEFAULT_ROW_HTML = '<div class="col-md-12 dragbox-row paramboxtmprow"></div>';
+    _this2.DEFAULT_ROW_HTML = "<div class=\"col-md-12 dragbox-row paramboxtmprow\"></div>";
 
-    _this2.PARAMBOX_EMPTY_SUBTITLE_ROW_HTML = '<div class="col-md-12 dragbox-row paramboxtmprow"><a class="parambox-subtitle">Subtitle</a></div>';
+    _this2.PARAMBOX_EMPTY_SUBTITLE_ROW_HTML = "<div class=\"col-md-12 dragbox-row paramboxtmprow\"><a class=\"parambox-subtitle\">Subtitle</a></div>";
 
-    _this2.PARAMBOX_EMPTY_ROW_HTML = '<div class="col-md-12 dragbox-row parambox-empty"><center>No parameters binded.</center></div>';
+    _this2.PARAMBOX_EMPTY_ROW_HTML = "<div class=\"col-md-12 dragbox-row parambox-empty\"><center>No parameters binded.</center></div>";
 
-    _this2.DEFAULT_BUTTON_ROW_HTML = '<div class="col-xs-12 dragbox-row parambox-buttonrow"></div>';
+    _this2.DEFAULT_BUTTON_ROW_HTML = "<div class=\"col-xs-12 dragbox-row parambox-buttonrow\"></div>";
     _this2.DEFAULT_BUTTON_HTML = {
-      savebutton: '<button type="button" class="btn btn-secondary btn-block dragbox-button parambox-savebutton">Save</button>',
-      importbutton: '<button type="button" class="btn btn-secondary  btn-block dragbox-button parambox-importbutton">Import</button>',
-      reloadbutton: '<button type="button" class="btn btn-secondary btn-block dragbox-button parambox-reloadbutton">Reload</button>'
+      savebutton: "<button type=\"button\" class=\"btn btn-secondary btn-block dragbox-button parambox-savebutton\">Save</button>",
+      importbutton: "<button type=\"button\" class=\"btn btn-secondary  btn-block dragbox-button parambox-importbutton\">Import</button>",
+      reloadbutton: "<button type=\"button\" class=\"btn btn-secondary btn-block dragbox-button parambox-reloadbutton\">Reload</button>"
     };
 
     // setup the buttons
@@ -808,7 +802,7 @@ var ParamBox = function (_DragBox2) {
       thisObject.reloadAndImport(e);
     });
 
-    $(document).on('click', '.parambox-subtitle', function () {
+    $(document).on("click", ".parambox-subtitle", function () {
       var id = $(this).attr("subtitle-id");
       $("[parambox-belong-to='" + id + "']").slideToggle(250);
     });
@@ -823,7 +817,7 @@ var ParamBox = function (_DragBox2) {
     _this2.subtitleRows = {};
 
     // set dragbox title
-    _this2.title = '<h5><i class="fa fa-cog fa-1x"></i> Parameter Box</h5>';
+    _this2.title = "<h5><i class=\"fa fa-cog fa-1x\"></i> Parameter Box</h5>";
 
     // set overflow
     _this2.overflow = "scroll";
@@ -841,7 +835,6 @@ var ParamBox = function (_DragBox2) {
     _this2.updateSize();
 
     _this2.refreshView();
-
     return _this2;
   }
 
@@ -851,9 +844,9 @@ var ParamBox = function (_DragBox2) {
   _createClass(ParamBox, [{
     key: "bind",
     value: function bind(object, properties) {
-      var constraints = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+      var constraints = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
-      if (typeof object == 'undefined') {
+      if (typeof object == "undefined") {
         throw new Error("object is undefined");
       }
 
@@ -864,8 +857,8 @@ var ParamBox = function (_DragBox2) {
       }
 
       for (var i = 0; i < properties.length; i++) {
-
-        objectHierarchy = this.getDescendantProp(object, properties[i]); // TODO use lodash ?
+        objectHierarchy = this.getDescendantProp(object, properties[i]);
+        // TODO use lodash ?
         var objectTemp = objectHierarchy[0];
         var property = objectHierarchy[1];
 
@@ -883,7 +876,7 @@ var ParamBox = function (_DragBox2) {
 
         // look for a constrained field
         if (constraints !== null) {
-          if (typeof constraints[properties[i]] != 'undefined') {
+          if (typeof constraints[properties[i]] != "undefined") {
             var constraintValues = constraints[properties[i]];
 
             if (initialValue !== null) {
@@ -894,7 +887,7 @@ var ParamBox = function (_DragBox2) {
               objectTemp[property] = objectTemp[property].constructor(initialValue);
             }
 
-            var bindedField = new BindedField(objectTemp, property, rowDom, 'selector', constraintValues, properties[i]);
+            var bindedField = new BindedField(objectTemp, property, rowDom, "selector", constraintValues, properties[i]);
           }
         }
 
@@ -905,9 +898,9 @@ var ParamBox = function (_DragBox2) {
           }
 
           if (objectTemp[property].constructor === Boolean) {
-            var bindedField = new BindedField(objectTemp, property, rowDom, 'selector', ["TRUE", "FALSE"], properties[i]);
+            var bindedField = new BindedField(objectTemp, property, rowDom, "selector", ["TRUE", "FALSE"], properties[i]);
           } else {
-            var bindedField = new BindedField(objectTemp, property, rowDom, 'input', null, properties[i]);
+            var bindedField = new BindedField(objectTemp, property, rowDom, "input", null, properties[i]);
           }
         }
 
@@ -936,7 +929,7 @@ var ParamBox = function (_DragBox2) {
   }, {
     key: "newRowInDom",
     value: function newRowInDom() {
-      var subtitle = arguments.length <= 0 || arguments[0] === undefined ? "" : arguments[0];
+      var subtitle = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
 
       if (subtitle !== "") {
         if (!(subtitle in this.subtitleRows)) {
@@ -967,7 +960,6 @@ var ParamBox = function (_DragBox2) {
     key: "refreshView",
     value: function refreshView() {
       // TODO: maybe check if all binded field are displayed in the paramBox. if not add them. get rid of unbinded field
-
       /* --- Add an export button if there is at least one binded property --- */
       if (this.rows.length) {
         this.boxElement[0].getElementsByClassName("parambox-buttonrow")[0].style.visibility = "visible";
@@ -988,7 +980,7 @@ var ParamBox = function (_DragBox2) {
     key: "keyfunction",
     value: function keyfunction(e) {
       // check if shift + P hotkeys were stroke and toggle visibility if so
-      this.map[e.keyCode] = e.type == 'keydown';
+      this.map[e.keyCode] = e.type == "keydown";
 
       // hide and show parameter box
       if (this.map[16] && this.map[80]) {
@@ -1066,13 +1058,12 @@ var ParamBox = function (_DragBox2) {
       if (height > 500) {
         height = 500;
       }
-      window.open('data:application/json;' + (window.btoa ? 'base64,' + btoa(stringified) : stringified), "ParamBox.save", "width=400,height=" + height);
+      window.open("data:application/json;" + (window.btoa ? "base64," + btoa(stringified) : stringified), "ParamBox.save", "width=400,height=" + height);
     }
   }, {
     key: "reloadAndImport",
     value: function reloadAndImport(event) {
       /* --- Serialize the parameters in URL format --- */
-
       var summaryArray = this.getSummaryArray();
       var str = "";
       for (var i = 0; i < summaryArray.length; i++) {
@@ -1083,7 +1074,6 @@ var ParamBox = function (_DragBox2) {
       }
 
       /* --- Append the parameters and reload the page --- */
-
       var url = window.location.href;
       var questionPosition = url.indexOf("?");
       if (questionPosition !== -1) {
@@ -1095,7 +1085,7 @@ var ParamBox = function (_DragBox2) {
     }
 
     /**
-     * Gets the last object and property from a string description of object hierachy 
+     * Gets the last object and property from a string description of object hierachy
      * @param  {object} object      Top object from which the hierarchy starts
      * @param  {string} description String describing the object hierachy (e.g this.object.has.property )
      * @return {array}             [parentObject, lastProperty, propertyValue]
@@ -1155,9 +1145,9 @@ var SmartChart = function (_SmartModal) {
   _inherits(SmartChart, _SmartModal);
 
   function SmartChart() {
-    var options = arguments.length <= 0 || arguments[0] === undefined ? mandatory() : arguments[0];
-    var callback = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
-    var boxElement = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : mandatory();
+    var callback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+    var boxElement = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
     _classCallCheck(this, SmartChart);
 
@@ -1170,22 +1160,21 @@ var SmartChart = function (_SmartModal) {
     }
 
     // save options
-
-    var _this3 = _possibleConstructorReturn(this, Object.getPrototypeOf(SmartChart).call(this, "overlay", callback, "closebutton", boxElement));
+    var _this3 = _possibleConstructorReturn(this, (SmartChart.__proto__ || Object.getPrototypeOf(SmartChart)).call(this, "overlay", callback, "closebutton", boxElement));
 
     _this3.chartOptions = $.extend(true, {}, options);
 
     // set dragbox title
-    _this3.title = '<center><h5>Smart Chart</h5></center>';
+    _this3.title = "<center><h5>Smart Chart</h5></center>";
 
     // Create canvas
     var canvasID = "chart-canvas" + ($("canvas").length + 1);
-    _this3.content = '<canvas id="' + canvasID + '" class="chart-canvas"></canvas>';
+    _this3.content = "<canvas id=\"" + canvasID + "\" class=\"chart-canvas\"></canvas>";
     _this3.canvas = document.getElementById(canvasID);
 
     if (typeof options.options.title.text !== "undefined") {
       options.options.title.display = false;
-      _this3.title = '<center><h5>' + options.options.title.text + '</h5></center>';
+      _this3.title = "<center><h5>" + options.options.title.text + "</h5></center>";
     }
 
     // Create chart
@@ -1201,10 +1190,10 @@ var SmartChart = function (_SmartModal) {
     _this3.boxClass = "dragbox dragbox-white-boxshadow";
 
     // setup footer and buttons
-    _this3.DEFAULT_BUTTON_ROW_HTML = '<div class="col-xs-12 dragbox-row smartchart-buttonrow"><div class="col-xs-10"></div></div>';
+    _this3.DEFAULT_BUTTON_ROW_HTML = "<div class=\"col-xs-12 dragbox-row smartchart-buttonrow\"><div class=\"col-xs-10\"></div></div>";
     _this3.DEFAULT_BUTTON_HTML = {
-      closebutton: '<button type="button" class="btn btn-secondary dragbox-button  smartchart-closebutton">Close</button>',
-      savebutton: '<button type="button" class="btn btn-secondary dragbox-button smartchart-savebutton">Save</button>'
+      closebutton: "<button type=\"button\" class=\"btn btn-secondary dragbox-button  smartchart-closebutton\">Close</button>",
+      savebutton: "<button type=\"button\" class=\"btn btn-secondary dragbox-button smartchart-savebutton\">Save</button>"
     };
 
     _this3.html(".dragbox-footer", _this3.DEFAULT_BUTTON_ROW_HTML);
@@ -1232,15 +1221,12 @@ var SmartChart = function (_SmartModal) {
       thisObject.chart.resize();
       thisObject.show();
     }, 250);
-
     return _this3;
   }
 
   _createClass(SmartChart, [{
     key: "callAfterConstructor",
     value: function callAfterConstructor() {}
-    // overide smart modal
-
 
     /** Overides SmartModal.callThenDestroy() function */
 
@@ -1272,7 +1258,7 @@ var SmartChart = function (_SmartModal) {
       if (height > 500) {
         height = 500;
       }
-      window.open('data:application/json;' + (window.btoa ? 'base64,' + btoa(stringified) : stringified), "SmartChart.save", "width=400,height=" + height);
+      window.open("data:application/json;" + (window.btoa ? "base64," + btoa(stringified) : stringified), "SmartChart.save", "width=400,height=" + height);
     }
   }]);
 
@@ -1284,12 +1270,9 @@ var SmartChart = function (_SmartModal) {
 //     if (fields.constructor !== Object) {
 //       throw new Error("SmartForm: fields is not an object.");
 //     }
-
 //     /* --- Create the modal for the form --- */
 //     super("overlay", callback, "sendbutton", boxElement);
-
 //     // TODO Create the form element IF url !== null, else only use the callback to handle data.
-
 //     // constraints can be functions like checkPassword(x) { return (bool) }
 //     this.fields = {};
 //     var keys = _.keys(fields);
@@ -1299,31 +1282,26 @@ var SmartChart = function (_SmartModal) {
 //       if (typeof fields[key].type === "undefined") {
 //         throw new Error("SmartForm: field[" + i + "].type is undefinned");
 //       }
-
 //       var baseField = {
 //         type: null,
 //         constraints: null,
 //         value: "",
 //         bindedField: null
 //       };
-
 //       fields[key] = _.extends(baseField, fields[key]); // TODO Either migrate to lodash or rewrite an extend function as well a a keys function
-
 //       this.fields[key] = fields[key];
-
 //       // TODO Create a form row
 //       this.fields[key].bindedField = new BindedField(this.fields, key, this.content, this.fields[key].type, this.fields[key].constraints);
-
 //     }
-
 //   }
 // }
 
+
 var BindedProperty = function () {
   function BindedProperty() {
-    var object = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
-    var property = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
-    var hierarchy = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+    var object = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+    var property = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+    var hierarchy = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
     _classCallCheck(this, BindedProperty);
 
@@ -1333,7 +1311,8 @@ var BindedProperty = function () {
     // data properties
     this.property = property;
     this.object = object;
-    this.propagate = false; // to add ? chain propagation? a subscription system maybe...
+    this.propagate = false;
+    // to add ? chain propagation? a subscription system maybe...
     this.type = null;
 
     // export value as hierarchy if set, else set as property name
@@ -1352,11 +1331,12 @@ var BindedProperty = function () {
 
   /* ======== Binding function ======== */
 
+
   _createClass(BindedProperty, [{
     key: "bind",
     value: function bind(object, property) {
       var propertyType = _typeof(this.object[this.property]);
-      if (propertyType === 'undefined') {
+      if (propertyType === "undefined") {
         throw new Error("Parambox: The variable '" + property + "' you are trying to bind is undefined - either this object or the property is not defined");
       } else {
         if (this.HANDLED_VARIABLE_TYPES.indexOf(propertyType) == -1) {
@@ -1408,14 +1388,14 @@ var BindedProperty = function () {
   }, {
     key: "value",
     set: function set(value) {
-      if (typeof this.object[this.property] === 'undefined') {
+      if (typeof this.object[this.property] === "undefined") {
         throw new Error("The variable you are trying to bind is undefined - either this object or the property is incorrect");
       } else {
         this.object[this.property] = this.convertToType(value);
       }
     },
     get: function get() {
-      if (typeof this.object[this.property] === 'undefined') {
+      if (typeof this.object[this.property] === "undefined") {
         throw new Error("The variable you are trying to bind is undefined - either this object or the property is incorrect");
       } else {
         return this.object[this.property];
@@ -1431,20 +1411,18 @@ var BindedField = function (_BindedProperty) {
 
   // this class holds an active input field (select, text input, slider component)
   // it creates a field from the selected type and bind a binded property to it
-
   function BindedField() {
-    var object = arguments.length <= 0 || arguments[0] === undefined ? mandatory("object") : arguments[0];
-    var property = arguments.length <= 1 || arguments[1] === undefined ? mandatory("property") : arguments[1];
-    var parent = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
-    var fieldType = arguments.length <= 3 || arguments[3] === undefined ? 'input' : arguments[3];
-    var allowedValues = arguments.length <= 4 || arguments[4] === undefined ? null : arguments[4];
-    var hierarchy = arguments.length <= 5 || arguments[5] === undefined ? null : arguments[5];
+    var object = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : mandatory("object");
+    var property = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : mandatory("property");
+    var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+    var fieldType = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : "input";
+    var allowedValues = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
+    var hierarchy = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : null;
 
     _classCallCheck(this, BindedField);
 
     // constant
-
-    var _this4 = _possibleConstructorReturn(this, Object.getPrototypeOf(BindedField).call(this, object, property, hierarchy));
+    var _this4 = _possibleConstructorReturn(this, (BindedField.__proto__ || Object.getPrototypeOf(BindedField)).call(this, object, property, hierarchy));
 
     _this4.VALID_FIELD_TYPE = ["input", "selector", "slider"];
 
@@ -1460,22 +1438,22 @@ var BindedField = function (_BindedProperty) {
 
     // build the field html
     switch (_this4.fieldType) {
-      case 'input':
-        _this4.fieldHTML = '<fieldset class="form-group">' + '<label>' + property + '</label>' + '<input type="text" class="form-control ' + _this4.tempClass + '" data-binded="' + property + '">' + '</fieldset>';
+      case "input":
+        _this4.fieldHTML = "<fieldset class=\"form-group\">" + "<label>" + property + "</label>" + "<input type=\"text\" class=\"form-control " + _this4.tempClass + "\" data-binded=\"" + property + "\">" + "</fieldset>";
         break;
-      case 'selector':
+      case "selector":
         if (!allowedValues) {
           throw new Error("fieldType selector needs at least one allowedValues");
         }
 
-        _this4.fieldHTML = '<fieldset class="form-group">' + '<label>' + property + '</label>' + '<select class="form-control ' + _this4.tempClass + '" data-binded="' + property + '">';
+        _this4.fieldHTML = "<fieldset class=\"form-group\">" + "<label>" + property + "</label>" + "<select class=\"form-control " + _this4.tempClass + "\" data-binded=\"" + property + "\">";
 
         for (var i = 0; i < _this4.allowedValues.length; i++) {
-          _this4.fieldHTML = _this4.fieldHTML + '<option value="' + _this4.allowedValues[i] + '">' + _this4.allowedValues[i] + '</option>';
+          _this4.fieldHTML = _this4.fieldHTML + "<option value=\"" + _this4.allowedValues[i] + "\">" + _this4.allowedValues[i] + "</option>";
         }
-        _this4.fieldHTML = _this4.fieldHTML + '</select></fieldset>';
+        _this4.fieldHTML = _this4.fieldHTML + "</select></fieldset>";
         break;
-      case 'slider':
+      case "slider":
         break;
       default:
         throw new Error("fieldType is invalid : input, selector and slider are the only valid type for now");
@@ -1493,7 +1471,7 @@ var BindedField = function (_BindedProperty) {
   _createClass(BindedField, [{
     key: "placeInParent",
     value: function placeInParent() {
-      var parent = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+      var parent = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
       if (parent) {
         this.parent = parent;
@@ -1543,7 +1521,7 @@ var BindedField = function (_BindedProperty) {
   }, {
     key: "update",
     value: function update() {
-      var origin = arguments.length <= 0 || arguments[0] === undefined ? "field" : arguments[0];
+      var origin = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "field";
 
       if (origin == "field") {
         this.value = $(this.field).val();
@@ -1560,7 +1538,7 @@ var BindedField = function (_BindedProperty) {
   }, {
     key: "value",
     set: function set(value) {
-      if (typeof this.object[this.property] === 'undefined') {
+      if (typeof this.object[this.property] === "undefined") {
         throw new Error("The variable you are trying to bind is undefined - either this object or the property is incorrect");
       } else {
         this.object[this.property] = this.convertToType(value);
@@ -1568,7 +1546,7 @@ var BindedField = function (_BindedProperty) {
       }
     },
     get: function get() {
-      if (typeof this.object[this.property] === 'undefined') {
+      if (typeof this.object[this.property] === "undefined") {
         throw new Error("The variable you are trying to bind is undefined - either this object or the property is incorrect");
       } else {
         return this.object[this.property];
@@ -1583,9 +1561,9 @@ var BindedField = function (_BindedProperty) {
 
 
 function mandatory() {
-  var param = arguments.length <= 0 || arguments[0] === undefined ? "" : arguments[0];
+  var param = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
 
-  throw new Error('Missing parameter ' + param);
+  throw new Error("Missing parameter " + param);
 }
 
 /**
@@ -1595,8 +1573,8 @@ function mandatory() {
  * @return {Array}  Either -1 if no match is found or an array containing the indicies
  */
 function findAllIndices() {
-  var needle = arguments.length <= 0 || arguments[0] === undefined ? mandatory() : arguments[0];
-  var haystack = arguments.length <= 1 || arguments[1] === undefined ? mandatory() : arguments[1];
+  var needle = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : mandatory();
+  var haystack = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : mandatory();
 
   var indices = [];
   for (var i = 0; i < haystack.length; i++) {
